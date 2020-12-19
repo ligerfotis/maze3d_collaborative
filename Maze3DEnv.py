@@ -1,9 +1,7 @@
-import random
-
-from config import *
 from gameObjects import *
 from assets import *
 from utils import checkTerminal
+import random
 
 layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
@@ -17,14 +15,25 @@ layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
 
+class ActionSpace:
+    def __init__(self):
+        pass
+        self.actions = list(range(0, 14))
+
+    def sample(self):
+        # return [random.sample([0, 1, 2], 1), random.sample([0, 1, 2], 1)]
+        return random.sample(self.actions, 1)[0]
+
+
 class Maze3D:
     def __init__(self):
         self.board = GameBoard(layout)
         self.keys = {pg.K_UP: 1, pg.K_DOWN: 2, pg.K_LEFT: 4, pg.K_RIGHT: 8}
         self.running = True
         self.done = False
-        self.observation = self.get_state() # must init board fisrt
+        self.observation = self.get_state()  # must init board fisrt
         self.action_space = []
+        self.action_space = ActionSpace()
 
     def step(self, action):
         self.board.handleKeys(action)  # action is int
@@ -49,37 +58,3 @@ class Maze3D:
     def reset(self):
         self.__init__()
         return self.observation
-
-    class action_space:
-        def __init__(self):
-            pass
-            self.actions = [1, 2, 4, 8]
-
-        def sample(self):
-            random.sample(self.actions, 5)
-
-def main():
-    maze = Maze3D()
-    action = 0
-    observation = maze.reset()
-    done = False
-    while not done:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                maze.running = False
-            if event.type == pg.KEYDOWN:
-                if event.key in maze.keys:
-                    action += maze.keys[event.key]
-            if event.type == pg.KEYUP:
-                if event.key in maze.keys:
-                    action -= maze.keys[event.key]
-        observation_, done = maze.step(action)
-        # if done:
-        #     maze.reset()
-
-    pg.quit()
-
-
-if __name__ == '__main__':
-    main()
-    exit(0)
