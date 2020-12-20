@@ -1,0 +1,28 @@
+game:
+    test_model: False # no training
+    checkpoint_name: "sac_20201216_17-25-51"
+    load_checkpoint: False
+
+SAC:
+  layer1_size: 256  # number of variables in hidden layer
+  layer2_size: 256
+  batch_size: 256
+  gamma: 0.99  # discount factor
+  tau: 0.005
+  alpha: 0.0003
+  beta: 0.0003
+
+#  use_custom_reward: True
+
+Experiment:
+  max_episodes: 1600  # max training episodes
+  max_timesteps: 400  # max timesteps in one episode
+  buffer_memory_size: 1000000
+
+  start_training_step: 400
+  learn_every_n_steps: 1
+  update_cycles: 1
+  reward_scale: 2
+  # solved_reward = 230  # stop training if avg_reward > solved_reward
+  log_interval: 20  # print avg reward in the interval
+  #chkpt_dir = "tmp/sac_fotis"
