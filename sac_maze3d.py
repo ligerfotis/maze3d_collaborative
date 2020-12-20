@@ -5,9 +5,10 @@ import torch
 from Maze3DEnv import Maze3D
 from assets import *
 from rl_models.sac_agent import Agent
+from rl_models.sac_discrete_agent import DiscreteSACAgent
 from rl_models.utils import get_config, get_plot_and_chkpt_dir, reward_function, plot_learning_curve, plot
-
-
+import numpy as np
+discrete = True
 def main():
     # get configuration
     config = get_config()
@@ -19,8 +20,13 @@ def main():
         torch.manual_seed(random_seed)
 
     chkpt_dir, plot_dir, timestamp = get_plot_and_chkpt_dir(config['game']['load_checkpoint'],
-                                                            config['game']['checkpoint_name'])
-    sac = Agent(config=config, env=maze, input_dims=maze.observation_shape, n_actions=maze.action_space.shape,
+                                                            config['game']['checkpoint_name'], discrete)
+
+    if discrete:
+        sac = DiscreteSACAgent(config=config, env=maze, input_dims=maze.observation_shape, n_actions=maze.action_space.high,
+                chkpt_dir=chkpt_dir)
+    else:
+        sac = Agent(config=config, env=maze, input_dims=maze.observation_shape, n_actions=maze.action_space.shape,
                 chkpt_dir=chkpt_dir)
     best_score = -100 - 1 * config['Experiment']['max_timesteps']
     best_score_episode = -1
@@ -59,10 +65,17 @@ def main():
             #     action = random.randint(0, action_dim - 1)
             # else:  # Explore with actions_prob
             #     action = sac.choose_action(observation)
-
-            # action = sac.choose_action(observation)
+            if discrete:
+                # action = sac.actor.sample_act(observation)
+                if i_episode < config['Experiment']['start_training_step_on_episode']:  # Pure exploration
+                    action = np.random.randint(0, maze.action_space.high)
+                else:  # Explore with actions_prob
+                    action = sac.actor.sample_act(observation)
+            else:
+                action = sac.choose_action(observation)
+            # print(action)
             # action = maze.action_space.sample()
-            action = maze.action_space.sample()
+            # action = maze.action_space.sample()
             action_history.append(action)
 
             """
@@ -80,11 +93,19 @@ def main():
             if timestep == max_timesteps:
                 timedout = True
 
-            observation_, reward, done = maze.step(action[0], timedout)
+            if discrete:
+                observation_, reward, done = maze.step(action, timedout)
+                sac.memory.add(observation, action, reward, observation_, done)
+            else:
+                observation_, reward, done = maze.step(action[0], timedout)
+                sac.remember(observation, action, reward, observation_, done)
 
-            sac.remember(observation, action, reward, observation_, done)
             if not config['game']['test_model']:
-                sac.learn([observation, action, reward, observation_, done])
+                if discrete:
+                    sac.learn()
+                    sac.soft_update_target()
+                else:
+                    sac.learn([observation, action, reward, observation_, done])
             observation = observation_
 
             # while 1:
@@ -106,11 +127,16 @@ def main():
                 start_grad_updates = time.time()
                 update_cycles = config['Experiment']['update_cycles']
 
-                if total_steps >= config['Experiment'][
-                    'start_training_step'] and total_steps % sac.update_interval == 0:
+                # if total_steps >= config['Experiment'][
+                #     'start_training_step'] and total_steps % sac.update_interval == 0:
+                if total_steps % sac.update_interval == 0:
                     for e in range(update_cycles):
-                        sac.learn()
-                        # sac.soft_update_target()
+                        if discrete:
+                            sac.learn()
+                            sac.soft_update_target()
+                        else:
+                            sac.learn()
+
                 end_grad_updates = time.time()
                 grad_updates_duration += end_grad_updates - start_grad_updates
 

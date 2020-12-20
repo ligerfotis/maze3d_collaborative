@@ -11,15 +11,16 @@ SAC:
   tau: 0.005
   alpha: 0.0003
   beta: 0.0003
+  target_entropy_ratio: 0.4
 
 #  use_custom_reward: True
 
 Experiment:
   max_episodes: 1600  # max training episodes
-  max_timesteps: 400  # max timesteps in one episode
+  max_timesteps: 500  # max timesteps in one episode
   buffer_memory_size: 1000000
 
-  start_training_step: 400
+  start_training_step_on_episode: 10
   learn_every_n_steps: 1
   update_cycles: 1
   reward_scale: 2

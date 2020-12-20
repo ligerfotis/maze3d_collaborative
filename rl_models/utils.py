@@ -33,18 +33,24 @@ def plot(data, figure_file, x=None, title=None):
     plt.savefig(figure_file)
 
 
-def get_plot_and_chkpt_dir(load_checkpoint, load_checkpoint_name):
+def get_plot_and_chkpt_dir(load_checkpoint, load_checkpoint_name, discrete=False):
     now = datetime.now()
     timestamp = str(now.strftime("%Y%m%d_%H-%M-%S"))
     plot_dir = None
     if not load_checkpoint:
-        chkpt_dir = 'tmp/sac_' + timestamp
+        if discrete:
+            chkpt_dir = 'tmp/sac_discrete_' + timestamp
+        else:
+            chkpt_dir = 'tmp/sac_' + timestamp
         if not os.path.exists('tmp/sac'):
             os.makedirs('tmp/sac')
             chkpt_dir = 'tmp/sac'
         else:
             os.makedirs(chkpt_dir)
-        plot_dir = 'plots/sac_' + timestamp
+        if discrete:
+            plot_dir = 'plots/sac_discrete' + timestamp
+        else:
+            plot_dir = 'plots/sac_' + timestamp
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir)
 
