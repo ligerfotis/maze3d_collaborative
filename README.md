@@ -1,6 +1,4 @@
-# Marble-Maze
-Pygame + PyOpenGL
+# Maze 3D Collaborative Learning on shared task
 
-A quick example of using Python to make simple 3D graphics
+Maze 3D game from: https://github.com/amengede/Marble-Maze
 
-Requires: most of these can be installed via pip and google searches: pyopengl, pygame, numpy, pyrr (linear algebra), pywavefront (.obj model loading)

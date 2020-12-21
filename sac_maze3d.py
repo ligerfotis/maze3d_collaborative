@@ -8,7 +8,12 @@ from rl_models.sac_agent import Agent
 from rl_models.sac_discrete_agent import DiscreteSACAgent
 from rl_models.utils import get_config, get_plot_and_chkpt_dir, reward_function, plot_learning_curve, plot
 import numpy as np
+
+from utils import convert_actions
+
 discrete = True
+
+
 def main():
     # get configuration
     config = get_config()
@@ -23,11 +28,12 @@ def main():
                                                             config['game']['checkpoint_name'], discrete)
 
     if discrete:
-        sac = DiscreteSACAgent(config=config, env=maze, input_dims=maze.observation_shape, n_actions=maze.action_space.high,
-                chkpt_dir=chkpt_dir)
+        sac = DiscreteSACAgent(config=config, env=maze, input_dims=maze.observation_shape,
+                               n_actions=maze.action_space.actions_number,
+                               chkpt_dir=chkpt_dir)
     else:
         sac = Agent(config=config, env=maze, input_dims=maze.observation_shape, n_actions=maze.action_space.shape,
-                chkpt_dir=chkpt_dir)
+                    chkpt_dir=chkpt_dir)
     best_score = -100 - 1 * config['Experiment']['max_timesteps']
     best_score_episode = -1
     best_score_length = -1
@@ -58,70 +64,58 @@ def main():
         episode_reward = 0
         start = time.time()
         grad_updates_duration = 0
-        for timestep in range(max_timesteps+1):
+
+        actions = [0, 0, 0, 0]  # all keys not pressed
+        for timestep in range(max_timesteps + 1):
             total_steps += 1
 
-            # if total_steps < start_training_step:  # Pure exploration
-            #     action = random.randint(0, action_dim - 1)
-            # else:  # Explore with actions_prob
-            #     action = sac.choose_action(observation)
             if discrete:
-                # action = sac.actor.sample_act(observation)
                 if i_episode < config['Experiment']['start_training_step_on_episode']:  # Pure exploration
-                    action = np.random.randint(0, maze.action_space.high)
+                    agent_action = np.random.randint(0, maze.action_space.actions_number)
                 else:  # Explore with actions_prob
-                    action = sac.actor.sample_act(observation)
+                    agent_action = sac.actor.sample_act(observation)
             else:
-                action = sac.choose_action(observation)
-            # print(action)
-            # action = maze.action_space.sample()
-            # action = maze.action_space.sample()
-            action_history.append(action)
-
+                agent_action = sac.choose_action(observation)
             """
             Add the human part here
             """
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     maze.running = False
-                # if event.type == pg.KEYDOWN:
-                #     if event.key in maze.keys:
-                #         action += maze.keys[event.key]
-                # if event.type == pg.KEYUP:
-                #     if event.key in maze.keys:
-                #         action -= maze.keys[event.key]
+                if event.type == pg.KEYDOWN:
+                    if event.key in maze.keys:
+                        actions[maze.keys_fotis[event.key]] = 1
+                        # action_human += maze.keys[event.key]
+                if event.type == pg.KEYUP:
+                    if event.key in maze.keys:
+                        actions[maze.keys_fotis[event.key]] = 0
+                        # action_human -= maze.keys[event.key]
+            # print(action)
+            # agent_action, human_action = action
+
+            # agent_action = maze.action_space.sample()[0]
+            human_action = convert_actions(actions)[1]
+            action = [agent_action, human_action]
+            action_history.append(action)
+
             if timestep == max_timesteps:
                 timedout = True
 
             if discrete:
                 observation_, reward, done = maze.step(action, timedout)
-                sac.memory.add(observation, action, reward, observation_, done)
+                sac.memory.add(observation, agent_action, reward, observation_, done)
             else:
-                observation_, reward, done = maze.step(action[0], timedout)
-                sac.remember(observation, action, reward, observation_, done)
+                observation_, reward, done = maze.step(action, timedout)
+                sac.remember(observation, agent_action, reward, observation_, done)
 
             if not config['game']['test_model']:
                 if discrete:
                     sac.learn()
                     sac.soft_update_target()
                 else:
-                    sac.learn([observation, action, reward, observation_, done])
+                    sac.learn([observation, agent_action, reward, observation_, done])
             observation = observation_
 
-            # while 1:
-            #     for event in pg.event.get():
-            #         if event.type == pg.QUIT:
-            #             maze.running = False
-            #         # if event.type == pg.KEYDOWN:
-            #         #     if event.key in maze.keys:
-            #         #         action += maze.keys[event.key]
-            #         # if event.type == pg.KEYUP:
-            #         #     if event.key in maze.keys:
-            #         #         action -= maze.keys[event.key]
-            #     action = maze.action_space.sample()
-            #     observation_, done = maze.step(action)
-            #     if done:
-            #         break
             if not config['game']['test_model']:
                 # off policy learning
                 start_grad_updates = time.time()

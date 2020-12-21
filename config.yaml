@@ -20,7 +20,7 @@ Experiment:
   max_timesteps: 500  # max timesteps in one episode
   buffer_memory_size: 1000000
 
-  start_training_step_on_episode: 10
+  start_training_step_on_episode: 0
   learn_every_n_steps: 1
   update_cycles: 1
   reward_scale: 2

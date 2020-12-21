@@ -27,10 +27,11 @@ class GameBoard:
         self.max_x_rotation = 0.5
         self.max_y_rotation = 0.5
 
-        self.keyMap = {1: (1, 0),
-                       2: (-1, 0),
-                       4: (0, 1), 5: (1, 1), 6: (-1, 1), 7: (0, 1),
+        self.keyMap = {1: (1, 0),  # 1: up
+                       2: (-1, 0),  # 2: down
+                       4: (0, 1), 5: (1, 1), 6: (-1, 1), 7: (0, 1),  # 4:left, 5:leftUP, 6:leftDown, 7:left
                        8: (0, -1), 9: (1, -1), 10: (-1, -1), 11: (0, -1), 13: (1, 0), 14: (-1, 0)}
+        # 8:right, 9:rightUP, 10:rightDown, 11:right, 13:up, 14:down
 
     def collideWall(self, x, y):
         xGrid = math.floor(x / 32 + 5)
@@ -60,6 +61,7 @@ class GameBoard:
     def handleKeys(self, key):
         if key in self.keyMap:
             angleIncrement = self.keyMap[key]
+            print(angleIncrement)
             self.rot_x += 0.01 * angleIncrement[0]
             if self.rot_x >= self.max_x_rotation:
                 self.rot_x = self.max_x_rotation
@@ -70,6 +72,22 @@ class GameBoard:
                 self.rot_y = self.max_y_rotation
             elif self.rot_y <= -self.max_y_rotation:
                 self.rot_y = -self.max_y_rotation
+
+    def handleKeys_fotis(self, angleIncrement):
+        if angleIncrement[0] == 2:
+            angleIncrement[0] = -1
+        if angleIncrement[1] == 2:
+            angleIncrement[1] = -1
+        self.rot_x += 0.01 * angleIncrement[0]
+        if self.rot_x >= self.max_x_rotation:
+            self.rot_x = self.max_x_rotation
+        elif self.rot_x <= -self.max_x_rotation:
+            self.rot_x = -self.max_x_rotation
+        self.rot_y += 0.01 * angleIncrement[1]
+        if self.rot_y >= self.max_y_rotation:
+            self.rot_y = self.max_y_rotation
+        elif self.rot_y <= -self.max_y_rotation:
+            self.rot_y = -self.max_y_rotation
 
     def draw(self):
         # glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
