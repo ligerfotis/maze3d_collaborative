@@ -61,7 +61,7 @@ class GameBoard:
     def handleKeys(self, key):
         if key in self.keyMap:
             angleIncrement = self.keyMap[key]
-            print(angleIncrement)
+            # print(angleIncrement)
             self.rot_x += 0.01 * angleIncrement[0]
             if self.rot_x >= self.max_x_rotation:
                 self.rot_x = self.max_x_rotation
@@ -162,3 +162,4 @@ class Well:
     # make it GREEN first
     def __int__(self):
         pass
+

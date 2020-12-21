@@ -1,12 +1,29 @@
-right_down = [104, 104]
+# right_down = [104, 104]
 # center = [-24, 8]
-center = [-22, 9]
+center = [0, 0]
+left_down = [-104, -104]
+left_up = [-104, 73]
+right_down = [73, -104]
+
+#################
+goal = left_up
+################
 
 
 def checkTerminal(ball):
     # print("Ball x:{} y{}".format(ball.x, ball.y))
-    if ball.x < - center[0] and ball.y < center[1]:
-        return True
+    if goal == right_down:
+        if ball.x > goal[0] and ball.y < goal[1]:
+            return True
+    elif goal == left_up:
+        if ball.x < goal[0] and ball.y > goal[1]:
+            return True
+    elif goal == left_down:
+        if ball.x < goal[0] and ball.y < goal[1]:
+            return True
+    elif goal == center:
+        if ball.x < 0 and ball.y < 0:
+            return True
     else:
         return False
 
@@ -26,3 +43,4 @@ def convert_actions(actions):
     else:
         action.append(0)
     return action
+

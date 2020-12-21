@@ -6,9 +6,39 @@ import pyrr
 import pywavefront as pwf
 from assets import *
 
+gameDisplay = None
+display_width, display_height = [800, 800]
+pg.font.init()
+font = pg.font.SysFont("Grobold", 20)  # Assign it to a variable font
+
+
+def text_objects(text, color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
+
+
+def message_to_screen(msg, color, param1, size):
+    textSurf, textRect = text_objects(msg, color)
+    textRect.center = (display_width / 2), (display_height / 2)
+    gameDisplay.blit(textSurf, textRect)
+
+
+def pause():
+    pause = True
+    while pause:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    pause = False
+
+        # message_to_screen("Paused", BLACK, -100, size="large")
+        # gameDisplay.update()
+        # clock.tick(5)
+
+
 pg.init()
 
-pg.display.set_mode((800, 800), pg.OPENGL | pg.DOUBLEBUF)
+pg.display.set_mode((display_width, display_height), pg.OPENGL | pg.DOUBLEBUF)
 clock = pg.time.Clock()
 
 glClearColor(0, 0.0, 0.0, 1)

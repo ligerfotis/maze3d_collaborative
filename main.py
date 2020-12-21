@@ -1,3 +1,5 @@
+from pygame import font
+
 from config import *
 from gameObjects import *
 from assets import *
@@ -24,7 +26,11 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+
             if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    # print("space")
+                    pause()
                 if event.key in keys:
                     currentKey += keys[event.key]
             if event.type == pg.KEYUP:
