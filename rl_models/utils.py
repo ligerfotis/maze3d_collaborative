@@ -8,10 +8,10 @@ from pip._vendor.distlib._backport import shutil
 
 
 def plot_learning_curve(x, scores, figure_file):
-    running_avg = np.zeros(len(scores))
-    for i in range(len(running_avg)):
-        running_avg[i] = np.mean(scores[max(0, i - 100):(i + 1)])
-    plt.plot(x, running_avg)
+    # running_avg = np.zeros(len(scores))
+    # for i in range(len(running_avg)):
+    #     running_avg[i] = np.mean(scores[max(0, i - 100):(i + 1)])
+    plt.plot(x, scores)
     plt.title('Total Rewards per Episode')
     plt.savefig(figure_file)
 
@@ -40,17 +40,17 @@ def get_plot_and_chkpt_dir(load_checkpoint, load_checkpoint_name, discrete=False
     if not load_checkpoint:
         if discrete:
             chkpt_dir = 'tmp/sac_discrete_' + timestamp
-        else:
-            chkpt_dir = 'tmp/sac_' + timestamp
-        if not os.path.exists('tmp/sac'):
-            os.makedirs('tmp/sac')
-            chkpt_dir = 'tmp/sac'
-        else:
-            os.makedirs(chkpt_dir)
-        if discrete:
             plot_dir = 'plots/sac_discrete' + timestamp
         else:
+            chkpt_dir = 'tmp/sac_' + timestamp
             plot_dir = 'plots/sac_' + timestamp
+        # if not os.path.exists('tmp/sac'):
+        #     os.makedirs('tmp/sac')
+        #     chkpt_dir = 'tmp/sac'
+        # else:
+        #     os.makedirs(chkpt_dir)
+        if not os.path.exists(chkpt_dir):
+            os.makedirs(chkpt_dir)
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir)
 

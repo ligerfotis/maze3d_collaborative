@@ -16,14 +16,15 @@ SAC:
 #  use_custom_reward: True
 
 Experiment:
-  max_episodes: 1600  # max training episodes
-  max_timesteps: 500  # max timesteps in one episode
+  max_episodes: 100  # max training episodes
+  max_timesteps: 200  # max timesteps in one episode
   buffer_memory_size: 1000000
 
-  start_training_step_on_episode: 0
-  learn_every_n_steps: 1
-  update_cycles: 1
+  action_duration: 0.2 # sec
+  start_training_step_on_episode: 5
+  learn_every_n_episodes: 5
+  update_cycles: 1000
   reward_scale: 2
   # solved_reward = 230  # stop training if avg_reward > solved_reward
-  log_interval: 20  # print avg reward in the interval
+  log_interval: 5  # print avg reward in the interval
   #chkpt_dir = "tmp/sac_fotis"

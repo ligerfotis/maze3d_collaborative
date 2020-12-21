@@ -1,3 +1,5 @@
+import time
+
 from gameObjects import *
 from assets import *
 from utils import checkTerminal
@@ -40,22 +42,27 @@ class Maze3D:
         self.observation = self.get_state()  # must init board fisrt
         self.action_space = ActionSpace()
         self.observation_shape = (len(self.observation),)
+        self.dt = None
+        self.fps = 60
 
-    def step(self, action, timedout):
-        # print("Env got action: {}".format(action))
-        # self.board.handleKeys(action)  # action is int
-        self.board.handleKeys_fotis(action)
-        self.board.update()
-        glClearDepth(1000.0)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        self.board.draw()
-        pg.display.flip()
-        clock.tick()
-        fps = clock.get_fps()
-        pg.display.set_caption("Running at " + str(int(fps)) + " fps")
-        self.observation = self.get_state()
-        if checkTerminal(self.board.ball):
-            self.done = True
+    def step(self, action, timedout, action_duration=None):
+        tmp_time = time.time()
+        while (time.time() - tmp_time) < action_duration and not self.done:
+            # print("Env got action: {}".format(action))
+            # self.board.handleKeys(action)  # action is int
+            self.board.handleKeys_fotis(action)
+            self.board.update()
+            glClearDepth(1000.0)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            self.board.draw()
+            pg.display.flip()
+
+            self.dt = clock.tick(self.fps)
+            fps = clock.get_fps()
+            pg.display.set_caption("Running at " + str(int(fps)) + " fps")
+            self.observation = self.get_state()
+            if checkTerminal(self.board.ball):
+                self.done = True
         reward = self.reward_function_maze(timedout)
         return self.observation, reward, self.done
 

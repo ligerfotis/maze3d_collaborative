@@ -23,7 +23,7 @@ class DiscreteSACAgent:
             self.target_entropy = config['SAC']['target_entropy_ratio']
             # Experiment
             self.buffer_max_size = config['Experiment']['buffer_memory_size']
-            self.update_interval = config['Experiment']['learn_every_n_steps']
+            self.update_interval = config['Experiment']['learn_every_n_episodes']
             self.scale = config['Experiment']['reward_scale']
 
         else:
@@ -48,9 +48,9 @@ class DiscreteSACAgent:
         if config is not None and 'chkpt_dir' in config["Experiment"].values():
             self.chkpt_dir = config['chkpt_dir']
 
-        self.actor = Actor(self.input_dims, self.n_actions, self.layer1_size).to(device)
-        self.critic = Critic(self.input_dims, self.n_actions, self.layer1_size).to(device)
-        self.target_critic = Critic(self.input_dims, self.n_actions, self.layer1_size).to(device)
+        self.actor = Actor(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
+        self.critic = Critic(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
+        self.target_critic = Critic(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
 
         self.target_critic.load_state_dict(self.critic.state_dict())
         # self.soft_update_target()
