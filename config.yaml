@@ -23,7 +23,7 @@ Experiment:
   action_duration: 0.2 # sec
   start_training_step_on_episode: 5
   learn_every_n_episodes: 5
-  update_cycles: 1000
+  update_cycles: 0
   reward_scale: 2
   # solved_reward = 230  # stop training if avg_reward > solved_reward
   log_interval: 5  # print avg reward in the interval

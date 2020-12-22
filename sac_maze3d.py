@@ -77,15 +77,19 @@ def main():
                 flag = False
         actions = [0, 0, 0, 0]  # all keys not pressed
         duration_pause = 0
+        save_models = True
         for timestep in range(max_timesteps + 1):
             total_steps += 1
 
             if discrete:
                 if i_episode < config['Experiment']['start_training_step_on_episode']:  # Pure exploration
                     agent_action = np.random.randint(0, maze.action_space.actions_number)
+                    save_models = False
                 else:  # Explore with actions_prob
+                    save_models = True
                     agent_action = sac.actor.sample_act(observation)
             else:
+                save_models = True
                 agent_action = sac.choose_action(observation)
             """
             Add the human part here
@@ -162,7 +166,7 @@ def main():
             best_score = avg_score
             best_score_episode = i_episode
             best_score_length = timestep
-            if not config['game']['test_model']:
+            if not config['game']['test_model'] and save_models:
                 sac.save_models()
         # for e in range(training_epochs_per_update):
         #     sac.learn()
