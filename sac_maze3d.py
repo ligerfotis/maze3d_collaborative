@@ -168,9 +168,7 @@ def main():
             best_score_length = timestep
             if not config['game']['test_model'] and save_models:
                 sac.save_models()
-        # for e in range(training_epochs_per_update):
-        #     sac.learn()
-        #     sac.soft_update_target()
+
         length_list.append(timestep)
         avg_length += timestep
         if not config['game']['test_model']:
@@ -180,7 +178,7 @@ def main():
 
             # if total_steps >= config['Experiment'][
             #     'start_training_step'] and total_steps % sac.update_interval == 0:
-            if i_episode % sac.update_interval == 0:
+            if i_episode % sac.update_interval == 0 and update_cycles > 0:
                 print("Performing {} updates".format(update_cycles))
                 for e in tqdm(range(update_cycles)):
                     if discrete:
