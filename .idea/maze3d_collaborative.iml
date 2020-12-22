@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/plots" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.6 (maze3d_collaborative)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
