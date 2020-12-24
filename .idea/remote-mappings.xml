@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@sftp://fotis@129.107.119.173:300/home/fotis/anaconda3/envs/maze3denv/bin/python">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$/ " remote-root="~/maze3d_collaborative/ " />
+            </list>
+          </settings>
+        </remote-mappings>
+      </list>
+    </list>
+  </component>
+</project>

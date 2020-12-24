@@ -1,8 +1,8 @@
 import time
 
-from gameObjects import *
-from assets import *
-from utils import checkTerminal
+from maze3D.gameObjects import *
+from maze3D.assets import *
+from maze3D.utils import checkTerminal
 import random
 
 layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -67,15 +67,16 @@ class Maze3D:
         return self.observation, reward, self.done
 
     def get_state(self):
-        # [ball pos x | ball pos y | ball vel x | ball vel y|  theta(x) | phi(y) ]
+        # [ball pos x | ball pos y | ball vel x | ball vel y|  theta(x) | phi(y) |  theta_dot(x) | phi_dot(y) | ]
         return np.asarray(
-            [self.board.ball.x, self.board.ball.y, self.board.ball.velocity[0], self.board.ball.velocity[1], self.board.rot_x, self.board.rot_y])
+            [self.board.ball.x, self.board.ball.y, self.board.ball.velocity[0], self.board.ball.velocity[1],
+             self.board.rot_x, self.board.rot_y, self.board.velocity[0], self.board.velocity[1]])
 
     def reset(self):
         self.__init__()
         return self.observation
 
-    def reward_function_maze(self, timedout):
+    def reward_function_maze(self, timedout, sparse=False):
         # For every timestep -1
         # Timed out -50
         # Reach goal +100

@@ -1,5 +1,5 @@
-from Maze3DEnv import Maze3D
-from assets import *
+from maze3D.Maze3DEnv import Maze3D
+from maze3D.assets import *
 
 
 def main():

@@ -1,26 +1,31 @@
 import csv
-import os
+import pandas as pd
 import time
 from datetime import timedelta
 import torch
-from Maze3DEnv import Maze3D
-from assets import *
-from config import pause
+from maze3D.Maze3DEnv import Maze3D
+from maze3D.assets import *
+from maze3D.config import pause
 from rl_models.sac_agent import Agent
 from rl_models.sac_discrete_agent import DiscreteSACAgent
-from rl_models.utils import get_config, get_plot_and_chkpt_dir, reward_function, plot_learning_curve, plot
+from rl_models.utils import get_config, get_plot_and_chkpt_dir, plot_learning_curve, plot
 import numpy as np
 from tqdm import tqdm
-from utils import convert_actions
+from maze3D.utils import convert_actions
 
-discrete = True
+column_names = ["actions_x", "actions_y", "tray_rot_x", "tray_rot_y", "tray_rot_vel_x", "tray_rot_vel_y",
+                "ball_pos_x", "ball_pos_y", "ball_vel_x", "ball_vel_y"]
 
 
 def main():
+    df = pd.DataFrame(columns=column_names)
     # get configuration
     config = get_config()
     # creating environment
     maze = Maze3D()
+    second_human = config['game']['second_human']
+
+    discrete = config['SAC']['discrete']
 
     random_seed = None
     if random_seed:
@@ -78,22 +83,21 @@ def main():
         actions = [0, 0, 0, 0]  # all keys not pressed
         duration_pause = 0
         save_models = True
-        for timestep in range(max_timesteps + 1):
+        for timestep in range(1, max_timesteps + 1):
             total_steps += 1
 
-            if discrete:
-                if i_episode < config['Experiment']['start_training_step_on_episode']:  # Pure exploration
-                    agent_action = np.random.randint(0, maze.action_space.actions_number)
-                    save_models = False
-                else:  # Explore with actions_prob
+            if not second_human:
+                if discrete:
+                    if i_episode < config['Experiment']['start_training_step_on_episode']:  # Pure exploration
+                        agent_action = np.random.randint(0, maze.action_space.actions_number)
+                        save_models = False
+                    else:  # Explore with actions_prob
+                        save_models = True
+                        agent_action = sac.actor.sample_act(observation)
+                else:
                     save_models = True
-                    agent_action = sac.actor.sample_act(observation)
-            else:
-                save_models = True
-                agent_action = sac.choose_action(observation)
-            """
-            Add the human part here
-            """
+                    agent_action = sac.choose_action(observation)
+
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     return 1
@@ -111,40 +115,46 @@ def main():
                     if event.key in maze.keys:
                         actions[maze.keys_fotis[event.key]] = 0
                         # action_human -= maze.keys[event.key]
-            # print(action)
-            # agent_action, human_action = action
 
             # agent_action = maze.action_space.sample()[0]
-            human_action = convert_actions(actions)[1]
-            action = [agent_action, human_action]
+            human_actions = convert_actions(actions)
+            if second_human:
+                action = human_actions
+            else:
+                action = [agent_action, human_actions[1]]
             action_history.append(action)
 
             if timestep == max_timesteps:
                 timedout = True
 
-            if discrete:
-                observation_, reward, done = maze.step(action, timedout, config['Experiment']['action_duration'])
-                sac.memory.add(observation, agent_action, reward, observation_, done)
-            else:
-                observation_, reward, done = maze.step(action, timedout, config['Experiment']['action_duration'])
-                sac.remember(observation, agent_action, reward, observation_, done)
+            observation_, reward, done = maze.step(action, timedout, config['Experiment']['action_duration'])
 
-            if not config['game']['test_model']:
+            if not second_human:
                 if discrete:
-                    sac.learn()
-                    sac.soft_update_target()
+                    sac.memory.add(observation, agent_action, reward, observation_, done)
                 else:
-                    sac.learn([observation, agent_action, reward, observation_, done])
+                    # observation_, reward, done = self.maze.step(action, timedout, self.config['Experiment']['action_duration'])
+                    sac.remember(observation, agent_action, reward, observation_, done)
+
+                if not config['game']['test_model']:
+                    if discrete:
+                        sac.learn()
+                        sac.soft_update_target()
+                    else:
+                        sac.learn([observation, agent_action, reward, observation_, done])
             observation = observation_
-
-
+            new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                       "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
+                       "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
+                       "tray_rot_vel_y": observation[7]}
+            # append row to the dataframe
+            df = df.append(new_row, ignore_index=True)
             # if total_steps >= start_training_step and total_steps % sac.target_update_interval == 0:
             #     sac.soft_update_target()
 
             running_reward += reward
             episode_reward += reward
-            # if render:
-            #     env.render()
+
             if done:
                 break
 
@@ -166,7 +176,7 @@ def main():
             best_score = avg_score
             best_score_episode = i_episode
             best_score_length = timestep
-            if not config['game']['test_model'] and save_models:
+            if not config['game']['test_model'] and save_models and not second_human:
                 sac.save_models()
 
         length_list.append(timestep)
@@ -175,17 +185,17 @@ def main():
             # off policy learning
             start_grad_updates = time.time()
             update_cycles = config['Experiment']['update_cycles']
-
-            # if total_steps >= config['Experiment'][
-            #     'start_training_step'] and total_steps % sac.update_interval == 0:
-            if i_episode % sac.update_interval == 0 and update_cycles > 0:
-                print("Performing {} updates".format(update_cycles))
-                for e in tqdm(range(update_cycles)):
-                    if discrete:
-                        sac.learn()
-                        sac.soft_update_target()
-                    else:
-                        sac.learn()
+            if not second_human:
+                # if total_steps >= config['Experiment'][
+                #     'start_training_step'] and total_steps % sac.update_interval == 0:
+                if i_episode % sac.update_interval == 0 and update_cycles > 0:
+                    print("Performing {} updates".format(update_cycles))
+                    for e in tqdm(range(update_cycles)):
+                        if discrete:
+                            sac.learn()
+                            sac.soft_update_target()
+                        else:
+                            sac.learn()
 
             end_grad_updates = time.time()
             grad_updates_duration += end_grad_updates - start_grad_updates
@@ -215,7 +225,7 @@ def main():
     info['fps'] = maze.fps
 
     print('Total Experiment time: {}'.format(experiment_duration))
-
+    df.to_pickle(plot_dir + '/training_logs.pkl')
     if not config['game']['test_model']:
         x = [i + 1 for i in range(len(score_history))]
         np.savetxt(chkpt_dir + '/scores.csv', np.asarray(score_history), delimiter=',')

@@ -1,10 +1,11 @@
 import pygame as pg
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
+from OpenGL.GLU import *
 import numpy as np
 import pyrr
 import pywavefront as pwf
-from assets import *
+from maze3D.assets import *
 
 gameDisplay = None
 display_width, display_height = [800, 800]
@@ -43,9 +44,9 @@ clock = pg.time.Clock()
 
 glClearColor(0, 0.0, 0.0, 1)
 
-with open("shaders/vertex.txt", 'r') as f:
+with open("maze3D/shaders/vertex.txt", 'r') as f:
     vertex_src = f.readlines()
-with open("shaders/fragment.txt", 'r') as f:
+with open("maze3D/shaders/fragment.txt", 'r') as f:
     fragment_src = f.readlines()
 shader = compileProgram(compileShader(vertex_src, GL_VERTEX_SHADER),
                         compileShader(fragment_src, GL_FRAGMENT_SHADER))
@@ -63,13 +64,13 @@ glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 glEnable(GL_CULL_FACE)
 
 ########################MODELS######################################
-BOARD_MODEL = ObjModel("models/board.obj")
-WALL_MODEL = ObjModel("models/wall.obj")
-BALL_MODEL = ObjModel("models/ball.obj")
+BOARD_MODEL = ObjModel("maze3D/models/board.obj")
+WALL_MODEL = ObjModel("maze3D/models/wall.obj")
+BALL_MODEL = ObjModel("maze3D/models/ball.obj")
 ########################TEXTURES####################################
-BOARD = Texture("textures/board.jpg")
-WALL = Texture("textures/wall.jpg")
-BALL = Texture("textures/glass.png")
+BOARD = Texture("maze3D/textures/board.jpg")
+WALL = Texture("maze3D/textures/wall.jpg")
+BALL = Texture("maze3D/textures/glass.png")
 ####################################################################
 
 # (field of view, aspect ratio,near,far)
@@ -86,3 +87,35 @@ glUniformMatrix4fv(VIEW_LOC, 1, GL_FALSE, viewMatrix)
 
 lightPosition = pyrr.Vector3([-400.0, 200.0, 500.0])
 glUniform3f(LIGHT_LOC, -400.0, 200.0, 300.0)
+
+### EFFORT TO ADD A WELL####
+vertices= (
+    (1, -1, -1),
+    (1, 1, -1),
+    (-1, 1, -1),
+    (-1, -1, -1),
+    (1, -1, 1),
+    (1, 1, 1),
+    (-1, -1, 1),
+    (-1, 1, 1)
+    )
+edges = (
+    (0,1),
+    (0,3),
+    (0,4),
+    (2,1),
+    (2,3),
+    (2,7),
+    (6,3),
+    (6,4),
+    (6,7),
+    (5,1),
+    (5,4),
+    (5,7)
+    )
+def Cube():
+    glBegin(GL_LINES)
+    for edge in edges:
+        for vertex in edge:
+            glVertex3fv(vertices[vertex])
+    glEnd()

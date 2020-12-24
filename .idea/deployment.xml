@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="heracleia_lab" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="fotis@129.107.119.173:300 key">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_539" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="heracleia_lab">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_51" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

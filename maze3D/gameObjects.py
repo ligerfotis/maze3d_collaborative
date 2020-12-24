@@ -1,10 +1,11 @@
-from config import *
-from assets import *
+from maze3D.config import *
+from maze3D.assets import *
 import math
 
 
 class GameBoard:
     def __init__(self, layout):
+        self.velocity = [0, 0]
         self.walls = []
         # Fotis: variable board size
         self.rows = len(layout)
@@ -78,16 +79,24 @@ class GameBoard:
             angleIncrement[0] = -1
         if angleIncrement[1] == 2:
             angleIncrement[1] = -1
-        self.rot_x += 0.01 * angleIncrement[0]
+        self.velocity[0] = 0.01 * angleIncrement[0]
+        self.rot_x += self.velocity[0]
         if self.rot_x >= self.max_x_rotation:
             self.rot_x = self.max_x_rotation
+            self.velocity[0] = 0
         elif self.rot_x <= -self.max_x_rotation:
             self.rot_x = -self.max_x_rotation
-        self.rot_y += 0.01 * angleIncrement[1]
+            self.velocity[0] = 0
+
+
+        self.velocity[1] = 0.01 * angleIncrement[1]
+        self.rot_y += self.velocity[1]
         if self.rot_y >= self.max_y_rotation:
             self.rot_y = self.max_y_rotation
+            self.velocity[1] = 0
         elif self.rot_y <= -self.max_y_rotation:
             self.rot_y = -self.max_y_rotation
+            self.velocity[1] = 0
 
     def draw(self):
         # glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
@@ -158,8 +167,19 @@ class Ball:
 
 
 class Well:
-    # similar to wall but with different position and physics
-    # make it GREEN first
-    def __int__(self):
-        pass
+    def __init__(self, x, y, parent):
+        self.parent = parent
+        self.x = x
+        self.y = y
+        self.z = 0
 
+    def update(self):
+        # first translate to position on board, then rotate with the board
+        translation = pyrr.matrix44.create_from_translation(pyrr.Vector3([self.x, self.y, self.z]))
+        self.model = pyrr.matrix44.multiply(translation, self.parent.rotationMatrix)
+
+    def draw(self):
+        glUniformMatrix4fv(MODEL_LOC, 1, GL_FALSE, self.model)
+        glBindVertexArray(WALL_MODEL.getVAO())
+        glBindTexture(GL_TEXTURE_2D, WALL.getTexture())
+        glDrawArrays(GL_TRIANGLES, 0, WALL_MODEL.getVertexCount())
