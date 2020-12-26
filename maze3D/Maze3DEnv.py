@@ -2,8 +2,10 @@ import time
 
 from maze3D.gameObjects import *
 from maze3D.assets import *
-from maze3D.utils import checkTerminal
+from maze3D.utils import checkTerminal, get_distance_from_goal
 import random
+
+from rl_models.utils import get_config
 
 layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
@@ -44,6 +46,8 @@ class Maze3D:
         self.observation_shape = (len(self.observation),)
         self.dt = None
         self.fps = 60
+        config = get_config()
+        self.reward_type = config['SAC']['reward_function']
 
     def step(self, action, timedout, action_duration=None):
         tmp_time = time.time()
@@ -76,7 +80,15 @@ class Maze3D:
         self.__init__()
         return self.observation
 
-    def reward_function_maze(self, timedout, sparse=False):
+    def reward_function_maze(self, timedout):
+        if self.reward_type == "Sparse" or self.reward_type == "sparse":
+            return self.reward_function_sparse(timedout)
+        elif self.reward_type == "Dense" or self.reward_type == "dense":
+            return self.reward_function_dense(timedout)
+        else:
+            print("Use a valid reward type")
+
+    def reward_function_sparse(self, timedout):
         # For every timestep -1
         # Timed out -50
         # Reach goal +100
@@ -88,3 +100,17 @@ class Maze3D:
             return -50
         # return -1 for each time step
         return -1
+
+    def reward_function_dense(self, timedout):
+        # For every timestep -target_distance
+        # Timed out -50
+        # Reach goal +100
+        if self.done:
+            # solved
+            return 100
+        # if not done and timedout
+        if timedout:
+            return -50
+        # return -target_distance/10 for each time step
+        target_distance = get_distance_from_goal(self.board.ball)
+        return -target_distance/10

@@ -1,4 +1,6 @@
 import csv
+import math
+
 import pandas as pd
 import time
 from datetime import timedelta
@@ -142,6 +144,7 @@ def main():
                         sac.soft_update_target()
                     else:
                         sac.learn([observation, agent_action, reward, observation_, done])
+                        sac.learn([observation, agent_action, reward, observation_, done])
             observation = observation_
             new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
                        "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
@@ -184,7 +187,7 @@ def main():
         if not config['game']['test_model']:
             # off policy learning
             start_grad_updates = time.time()
-            update_cycles = config['Experiment']['update_cycles']
+            update_cycles = math.ceil(config['Experiment']['update_cycles']/sac.batch_size)
             if not second_human:
                 # if total_steps >= config['Experiment'][
                 #     'start_training_step'] and total_steps % sac.update_interval == 0:

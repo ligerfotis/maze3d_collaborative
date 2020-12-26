@@ -15,22 +15,24 @@ SAC:
   alpha: 0.0003
   beta: 0.0003
   target_entropy_ratio: 0.4
+  reward_function: Sparse
+# reward_function: Dense
 
 #  use_custom_reward: True
 
 Experiment:
-  max_episodes: 5  # max training episodes
-  max_timesteps: 10  # max timesteps in one episode
+  max_episodes: 100  # max training episodes
+  max_timesteps: 200  # max timesteps in one episode
   buffer_memory_size: 1000000
 
-  action_duration: 0.02 # sec
+  action_duration: 0.2 # sec
   start_training_step_on_episode: 5
-  learn_every_n_episodes: 5
-  update_cycles: 0
+  learn_every_n_episodes: 20
+  update_cycles: 20000
   reward_scale: 2
   # solved_reward = 230  # stop training if avg_reward > solved_reward
   log_interval: 5  # print avg reward in the interval
   #chkpt_dir = "tmp/sac_fotis"
 
 
-# Commnets: Right Down
+# Comments: left_up

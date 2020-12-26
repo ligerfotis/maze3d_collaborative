@@ -1,5 +1,7 @@
 # right_down = [104, 104]
 # center = [-24, 8]
+import math
+
 center = [0, 0]
 left_down = [-104, -104]
 left_up = [-104, 73]
@@ -7,6 +9,8 @@ right_down = [73, -104]
 
 #################
 goal = left_up
+
+
 ################
 
 
@@ -28,6 +32,10 @@ def checkTerminal(ball):
         return False
 
 
+def get_distance_from_goal(ball):
+    return math.sqrt(math.pow(ball.x - goal[0], 2) + math.pow(ball.y - goal[1], 2))
+
+
 def convert_actions(actions):
     action = []
     if actions[0] == 1:
@@ -43,4 +51,3 @@ def convert_actions(actions):
     else:
         action.append(0)
     return action
-
