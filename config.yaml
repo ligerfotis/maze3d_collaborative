@@ -34,6 +34,7 @@ Experiment:
     # solved_reward = 230  # stop training if avg_reward > solved_reward
     log_interval: 5  # print avg reward in the interval
     #chkpt_dir = "tmp/sac_fotis"
+
   loop_2:
     total_timesteps: 3500  # total timesteps
     max_timesteps_per_game: 200  # max timesteps per game
