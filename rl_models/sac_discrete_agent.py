@@ -8,7 +8,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class DiscreteSACAgent:
     def __init__(self, config=None, alpha=0.0003, beta=0.0003, input_dims=[8],
-                 env=None, gamma=0.99, n_actions=2, max_size=1000000, tau=0.005,
+                 env=None, gamma=0.99, n_actions=2, buffer_max_size=1000000, tau=0.005,
                  update_interval=1, layer1_size=256, layer2_size=256, batch_size=256, reward_scale=2,
                  chkpt_dir='tmp/sac', target_entropy_ratio=0.4):
         if config is not None:
@@ -21,23 +21,18 @@ class DiscreteSACAgent:
             self.alpha = config['SAC']['alpha']
             self.beta = config['SAC']['beta']
             self.target_entropy = config['SAC']['target_entropy_ratio']
-            # Experiment
-            self.buffer_max_size = config['Experiment']['buffer_memory_size']
-            self.update_interval = config['Experiment']['learn_every_n_episodes']
-            self.scale = config['Experiment']['reward_scale']
-
         else:
             self.gamma = gamma
             self.tau = tau
-            self.buffer_max_size = max_size
             self.batch_size = batch_size
-            self.update_interval = update_interval
             self.alpha = alpha
             self.beta = beta
-
             self.layer1_size = layer1_size
             self.layer2_size = layer2_size
-            self.scale = reward_scale
+
+        self.update_interval = update_interval
+        self.buffer_max_size = buffer_max_size
+        self.scale = reward_scale
         self.lr = 0.002
         self.env = env
         self.input_dims = input_dims[0]

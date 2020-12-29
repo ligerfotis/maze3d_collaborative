@@ -1,10 +1,7 @@
 import time
-
 from maze3D.gameObjects import *
 from maze3D.assets import *
 from maze3D.utils import checkTerminal, get_distance_from_goal
-import random
-
 from rl_models.utils import get_config
 
 layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -65,7 +62,7 @@ class Maze3D:
             fps = clock.get_fps()
             pg.display.set_caption("Running at " + str(int(fps)) + " fps")
             self.observation = self.get_state()
-            if checkTerminal(self.board.ball):
+            if checkTerminal(self.board.ball) or timedout:
                 self.done = True
         reward = self.reward_function_maze(timedout)
         return self.observation, reward, self.done
@@ -92,7 +89,7 @@ class Maze3D:
         # For every timestep -1
         # Timed out -50
         # Reach goal +100
-        if self.done:
+        if self.done and not timedout:
             # solved
             return 100
         # if not done and timedout

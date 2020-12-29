@@ -1,7 +1,5 @@
 import os
 from datetime import datetime
-
-import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 from pip._vendor.distlib._backport import shutil
@@ -33,17 +31,20 @@ def plot(data, figure_file, x=None, title=None):
     plt.savefig(figure_file)
 
 
-def get_plot_and_chkpt_dir(load_checkpoint, load_checkpoint_name, discrete=False):
+def get_plot_and_chkpt_dir(config):
+    load_checkpoint, load_checkpoint_name, discrete = [config['game']['load_checkpoint'],
+                                                       config['game']['checkpoint_name'], config['SAC']['discrete']]
+    loop = str(config['Experiment']['loop'])
     now = datetime.now()
     timestamp = str(now.strftime("%Y%m%d_%H-%M-%S"))
     plot_dir = None
     if not load_checkpoint:
         if discrete:
-            chkpt_dir = 'tmp/sac_discrete_' + timestamp
-            plot_dir = 'plots/sac_discrete' + timestamp
+            chkpt_dir = 'tmp/sac_discrete_loop' + loop + "_" + timestamp
+            plot_dir = 'plots/sac_discrete_loop' + loop + "_" + timestamp
         else:
-            chkpt_dir = 'tmp/sac_' + timestamp
-            plot_dir = 'plots/sac_' + timestamp
+            chkpt_dir = 'tmp/sac_loop' + loop + "_" + timestamp
+            plot_dir = 'plots/sac_loop' + loop + "_" + timestamp
         # if not os.path.exists('tmp/sac'):
         #     os.makedirs('tmp/sac')
         #     chkpt_dir = 'tmp/sac'
@@ -70,8 +71,6 @@ def get_config(config_file='config.yaml'):
         print('Error reading the config file')
 
     return yaml_data
-
-
 
 
 def reward_function(env, observation, timedout):
