@@ -5,7 +5,7 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
 
 (work still in progress)
 
-### Learn the task collaboratively with the **RL agent**:
+### Learn the task collaboratively
 
 * (Recommended) create a python virtual environment
     
@@ -13,12 +13,16 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
         source venv/bin/activate
         pip install -r requirements.txt
     
-* Adjust the hyperparameters in the `config.yaml` file
+* Adjust the hyperparameters in the `config_sac.yaml` or the `config_human.yaml` file
     * Note: Discrete SAC is only compatible with the game so far
-* Run 
+* Run
+  *  With the **RL agent**:
         
-        python sac_maze3d.py
-
+          python sac_maze3d.py config_sac.yaml
+  * With a **Second human**:
+        
+        python sac_maze3d.py config_human.yaml
+  
 * Use left and right arrows to control the tilt of the tray around its vertical(y) axis
 
 * The goal can be set in the maze3D/utils.py file
@@ -27,5 +31,7 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
         #################
         goal = left_down
         ################
+
+
 
 

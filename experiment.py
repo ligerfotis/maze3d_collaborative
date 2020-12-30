@@ -14,6 +14,7 @@ from maze3D.utils import convert_actions
 column_names = ["actions_x", "actions_y", "tray_rot_x", "tray_rot_y", "tray_rot_vel_x", "tray_rot_vel_y",
                 "ball_pos_x", "ball_pos_y", "ball_vel_x", "ball_vel_y"]
 
+
 class Experiment:
     def __init__(self, config, environment, agent):
         self.config = config
@@ -23,7 +24,6 @@ class Experiment:
         self.best_reward = None
         self.best_score_episode = -1
         self.best_score_length = -1
-        # logging variables
         self.total_steps = 0
         self.action_history = []
         self.score_history = []
@@ -47,6 +47,7 @@ class Experiment:
         self.save_models = True
         self.game = None
 
+    # Experiment 1 loop
     def loop_1(self):
         # Experiment 1 loop
         flag = True
@@ -139,6 +140,7 @@ class Experiment:
         if not self.second_human:
             self.avg_grad_updates_duration = mean(self.grad_updates_durations)
 
+    # Experiment 2 loop
     def loop_2(self):
         # Experiment 2 loop
         flag = True

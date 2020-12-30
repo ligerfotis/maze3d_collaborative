@@ -32,7 +32,7 @@ class ActionSpace:
 
 
 class Maze3D:
-    def __init__(self):
+    def __init__(self, config_file='config_sac.yaml'):
         self.board = GameBoard(layout)
         self.keys = {pg.K_UP: 1, pg.K_DOWN: 2, pg.K_LEFT: 4, pg.K_RIGHT: 8}
         self.keys_fotis = {pg.K_UP: 0, pg.K_DOWN: 1, pg.K_LEFT: 2, pg.K_RIGHT: 3}
@@ -43,7 +43,7 @@ class Maze3D:
         self.observation_shape = (len(self.observation),)
         self.dt = None
         self.fps = 60
-        config = get_config()
+        config = get_config(config_file)
         self.reward_type = config['SAC']['reward_function']
 
     def step(self, action, timedout, action_duration=None):
@@ -82,6 +82,8 @@ class Maze3D:
             return self.reward_function_sparse(timedout)
         elif self.reward_type == "Dense" or self.reward_type == "dense":
             return self.reward_function_dense(timedout)
+        elif self.reward_type == "Sparse_2" or self.reward_type == "sparse_2":
+            return self.reward_function_sparse2(timedout)
         else:
             print("Use a valid reward type")
 
@@ -111,3 +113,13 @@ class Maze3D:
         # return -target_distance/10 for each time step
         target_distance = get_distance_from_goal(self.board.ball)
         return -target_distance/10
+
+    def reward_function_sparse2(self, timedout):
+        # For every timestep -1
+        # Timed out -50
+        # Reach goal +100
+        if self.done and not timedout:
+            # solved
+            return 10
+        # return -1 for each time step
+        return -1

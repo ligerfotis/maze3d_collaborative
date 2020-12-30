@@ -1,0 +1,53 @@
+game:
+    test_model: False # no training
+    checkpoint_name: "sac_20201216_17-25-51"
+    load_checkpoint: False
+    second_human: False # Instead of the RL play with a second human
+
+
+SAC:
+  discrete: True
+  layer1_size: 256  # number of variables in hidden layer
+  layer2_size: 256
+  batch_size: 256
+  gamma: 0.99  # discount factor
+  tau: 0.005
+  alpha: 0.0003
+  beta: 0.0003
+  target_entropy_ratio: 0.4
+#  reward_function: Sparse
+#  reward_function: Dense
+  reward_function: Sparse_2
+
+#  use_custom_reward: True
+
+Experiment:
+  loop: 2 # 1 or 2
+  loop_1:
+    max_episodes: 100  # max training episodes
+    max_timesteps: 200  # max timesteps in one episode
+    buffer_memory_size: 1000000
+    action_duration: 0.2 # sec
+    start_training_step_on_episode: 5
+    learn_every_n_episodes: 10
+    update_cycles: 20000
+    reward_scale: 2
+    # solved_reward = 230  # stop training if avg_reward > solved_reward
+    log_interval: 5  # print avg reward in the interval
+    #chkpt_dir = "tmp/sac_fotis"
+
+  loop_2:
+    total_timesteps: 3500  # total timesteps
+    max_timesteps_per_game: 200  # max timesteps per game
+    buffer_memory_size: 1000
+    action_duration: 0.2 # sec
+    start_training_step_on_timestep: 500
+    learn_every_n_timesteps: 500
+    update_cycles: 20000
+    reward_scale: 2
+    # solved_reward = 230  # stop training if avg_reward > solved_reward
+    log_interval: 4  # games
+    #chkpt_dir = "tmp/sac_fotis"
+
+
+# Comments: left_down

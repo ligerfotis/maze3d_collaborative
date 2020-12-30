@@ -55,7 +55,7 @@ def get_plot_and_chkpt_dir(config):
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir)
 
-        shutil.copy('config.yaml', chkpt_dir)
+        shutil.copy('config_sac.yaml', chkpt_dir)
     else:
         print("Loading Model from checkpoint {}".format(load_checkpoint_name))
         chkpt_dir = 'tmp/' + load_checkpoint_name
@@ -63,7 +63,7 @@ def get_plot_and_chkpt_dir(config):
     return chkpt_dir, plot_dir, timestamp
 
 
-def get_config(config_file='config.yaml'):
+def get_config(config_file='config_sac.yaml'):
     try:
         with open(config_file) as file:
             yaml_data = yaml.safe_load(file)

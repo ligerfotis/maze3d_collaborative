@@ -7,17 +7,18 @@ from rl_models.sac_agent import Agent
 from rl_models.sac_discrete_agent import DiscreteSACAgent
 from rl_models.utils import get_config, get_plot_and_chkpt_dir
 from maze3D.utils import save_logs_and_plot
+import sys
 
 
-def main():
+def main(argv):
     # get configuration
-    config = get_config()
+    config = get_config(argv[0])
     # creating environment
-    maze = Maze3D()
+    maze = Maze3D(config_file=argv[0])
+    # create the checkpoint and plot directories for this experiment
+    chkpt_dir, plot_dir, timestamp = get_plot_and_chkpt_dir(config)
 
     discrete = config['SAC']['discrete']
-
-    chkpt_dir, plot_dir, timestamp = get_plot_and_chkpt_dir(config)
     if discrete:
         if config['Experiment']['loop'] == 1:
             buffer_max_size = config['Experiment']['loop_1']['buffer_memory_size']
@@ -41,24 +42,26 @@ def main():
     # training loop
     loop = config['Experiment']['loop']
     if loop == 1:
+        # Experiment 1
         experiment.loop_1()
     else:
+        # Experiment 2
         experiment.loop_2()
     end_experiment = time.time()
     experiment_duration = timedelta(seconds=end_experiment - start_experiment - experiment.duration_pause_total)
 
     print('Total Experiment time: {}'.format(experiment_duration))
+    # save training logs to a pickle file
     experiment.df.to_pickle(plot_dir + '/training_logs.pkl')
+
     if not config['game']['test_model']:
-        if loop == 1:
-            total_games = experiment.max_episodes
-        else:
-            total_games = experiment.game
+        total_games = experiment.max_episodes if loop == 1 else experiment.game
+        # save rest of the experiment logs and plot them
         save_logs_and_plot(experiment, chkpt_dir, plot_dir, total_games)
         experiment.save_info(chkpt_dir, experiment_duration, total_games)
     pg.quit()
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
     exit(0)
