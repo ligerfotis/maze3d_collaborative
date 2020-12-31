@@ -12,6 +12,8 @@ right_down = [73, -104]
 
 #################
 goal = left_down
+
+
 ################
 
 
@@ -53,29 +55,42 @@ def convert_actions(actions):
         action.append(0)
     return action
 
+
 def save_logs_and_plot(experiment, chkpt_dir, plot_dir, max_episodes):
+    x = [i + 1 for i in range(len(experiment.score_history))]
+    np.savetxt(chkpt_dir + '/scores.csv', np.asarray(experiment.score_history), delimiter=',')
 
-        x = [i + 1 for i in range(len(experiment.score_history))]
-        np.savetxt(chkpt_dir + '/scores.csv', np.asarray(experiment.score_history), delimiter=',')
+    actions = np.asarray(experiment.action_history)
+    # action_main = actions[0].flatten()
+    # action_side = actions[1].flatten()
+    x_actions = [i + 1 for i in range(len(actions))]
+    # Save logs in files
+    np.savetxt(chkpt_dir + '/actions.csv', actions, delimiter=',')
+    # np.savetxt('tmp/sac_' + timestamp + '/action_side.csv', action_side, delimiter=',')
+    np.savetxt(chkpt_dir + '/epidode_durations.csv', np.asarray(experiment.episode_duration_list), delimiter=',')
+    np.savetxt(chkpt_dir + '/avg_length_list.csv', np.asarray(experiment.length_list), delimiter=',')
+    np.savetxt(chkpt_dir + '/grad_updates_durations.csv', experiment.grad_updates_durations, delimiter=',')
 
-        actions = np.asarray(experiment.action_history)
-        # action_main = actions[0].flatten()
-        # action_side = actions[1].flatten()
-        x_actions = [i + 1 for i in range(len(actions))]
-        # Save logs in files
-        np.savetxt(chkpt_dir + '/actions.csv', actions, delimiter=',')
-        # np.savetxt('tmp/sac_' + timestamp + '/action_side.csv', action_side, delimiter=',')
-        np.savetxt(chkpt_dir + '/epidode_durations.csv', np.asarray(experiment.episode_duration_list), delimiter=',')
-        np.savetxt(chkpt_dir + '/avg_length_list.csv', np.asarray(experiment.length_list), delimiter=',')
+    # test logs
+    np.savetxt(chkpt_dir + '/test_episode_duration_list.csv', experiment.test_episode_duration_list, delimiter=',')
+    np.savetxt(chkpt_dir + '/test_score_history.csv', experiment.test_score_history, delimiter=',')
+    np.savetxt(chkpt_dir + '/test_length_list.csv', experiment.test_length_list, delimiter=',')
 
-        np.savetxt(chkpt_dir + '/grad_updates_durations.csv', experiment.grad_updates_durations, delimiter=',')
+    plot_learning_curve(x, experiment.score_history, plot_dir + "/scores.png")
+    # plot_actions(x_actions, action_main, plot_dir + "/action_main.png")
+    # plot_actions(x_actions, action_side, plot_dir + "/action_side.png")
+    plot(experiment.length_list, plot_dir + "/length.png", x=[i + 1 for i in range(max_episodes)])
+    plot(experiment.episode_duration_list, plot_dir + "/epidode_durations.png",
+         x=[i + 1 for i in range(max_episodes)])
+    plot(experiment.grad_updates_durations, plot_dir + "/grad_updates_durations.png",
+         x=[i + 1 for i in range(len(experiment.grad_updates_durations))])
 
-        plot_learning_curve(x, experiment.score_history, plot_dir + "/scores.png")
-        # plot_actions(x_actions, action_main, plot_dir + "/action_main.png")
-        # plot_actions(x_actions, action_side, plot_dir + "/action_side.png")
-        plot(experiment.length_list, plot_dir + "/length_list.png", x=[i + 1 for i in range(max_episodes)])
-        plot(experiment.episode_duration_list, plot_dir + "/epidode_durations.png",
-             x=[i + 1 for i in range(max_episodes)])
-        plot(experiment.grad_updates_durations, plot_dir + "/grad_updates_durations.png",
-             x=[i + 1 for i in range(len(experiment.grad_updates_durations))])
-
+    # plot test logs
+    x = [i + 1 for i in range(len(experiment.test_length_list))]
+    plot(experiment.test_score_history, plot_dir + "/test_scores.png", x=x)
+    # plot_actions(x_actions, action_main, plot_dir + "/action_main.png")
+    # plot_actions(x_actions, action_side, plot_dir + "/action_side.png")
+    plot(experiment.test_length_list, plot_dir + "/test_length.png",
+         x=x)
+    plot(experiment.test_episode_duration_list, plot_dir + "/test_episode_duration.png",
+         x=x)
