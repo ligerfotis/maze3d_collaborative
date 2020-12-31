@@ -1,4 +1,5 @@
 /venv/
 /tmp/*
 /plots/*
-#config_sac.yaml
+config_sac.yaml
+config_human.yaml

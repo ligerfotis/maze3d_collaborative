@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import yaml
 from pip._vendor.distlib._backport import shutil
 
+from rl_models.sac_agent import Agent
+from rl_models.sac_discrete_agent import DiscreteSACAgent
+
 
 def plot_learning_curve(x, scores, figure_file):
     # running_avg = np.zeros(len(scores))
@@ -96,3 +99,25 @@ def reward_function(env, observation, timedout):
 
     # return -1 for each time step
     return -1, False
+
+
+def get_sac_agent(config, env, chkpt_dir):
+    discrete = config['SAC']['discrete']
+    if discrete:
+        if config['Experiment']['loop'] == 1:
+            buffer_max_size = config['Experiment']['loop_1']['buffer_memory_size']
+            update_interval = config['Experiment']['loop_1']['learn_every_n_episodes']
+            scale = config['Experiment']['loop_1']['reward_scale']
+        else:
+            buffer_max_size = config['Experiment']['loop_2']['buffer_memory_size']
+            update_interval = config['Experiment']['loop_2']['learn_every_n_timesteps']
+            scale = config['Experiment']['loop_2']['reward_scale']
+
+        sac = DiscreteSACAgent(config=config, env=env, input_dims=env.observation_shape,
+                               n_actions=env.action_space.actions_number,
+                               chkpt_dir=chkpt_dir, buffer_max_size=buffer_max_size, update_interval=update_interval,
+                               reward_scale=scale)
+    else:
+        sac = Agent(config=config, env=env, input_dims=env.observation_shape, n_actions=env.action_space.shape,
+                    chkpt_dir=chkpt_dir)
+    return sac

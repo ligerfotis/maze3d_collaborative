@@ -2,7 +2,7 @@ game:
     test_model: False # no training
     checkpoint_name: "sac_20201216_17-25-51"
     load_checkpoint: False
-    second_human: False # Instead of the RL play with a second human
+    second_human: True # Instead of the RL play with a second human
 
 
 SAC:
