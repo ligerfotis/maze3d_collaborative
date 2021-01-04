@@ -5,7 +5,8 @@ game:
     second_human: False # Instead of the RL play with a second human
     agent_only: False
     verbose: True
-    save: True # save models and logs
+    save: False # save models and logs
+    goal: "right_down" # "left_down" "left_up" "right_down"
 
 SAC:
   discrete: True
@@ -30,12 +31,12 @@ Experiment:
     max_timesteps: 100  # max timesteps in one episode
     buffer_memory_size: 1000000
     action_duration: 0.2 # sec
-    start_training_step_on_episode: 2
-    learn_every_n_episodes: 2
+    start_training_step_on_episode: 5
+    learn_every_n_episodes: 5
     update_cycles: 20000
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward
-    log_interval: 2  # print avg reward in the interval
+    log_interval: 5  # print avg reward in the interval
     #chkpt_dir = "tmp/sac_fotis"
 
   loop_2:

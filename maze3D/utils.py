@@ -1,24 +1,15 @@
-# right_down = [104, 104]
-# center = [-24, 8]
 import math
 import numpy as np
 
+from maze3D.config import left_down, right_down, left_up, center
 from rl_models.utils import plot_learning_curve, plot
 
-center = [0, 0]
-left_down = [-104, -104]
-left_up = [-104, 73]
-right_down = [73, -104]
-
-#################
-goal = left_down
+goals = {"left_down": left_down, "left_up": left_up, "right_down": right_down}
 
 
-################
-
-
-def checkTerminal(ball):
+def checkTerminal(ball, goal):
     # print("Ball x:{} y{}".format(ball.x, ball.y))
+    goal = goals[goal]
     if goal == right_down:
         if ball.x > goal[0] and ball.y < goal[1]:
             return True

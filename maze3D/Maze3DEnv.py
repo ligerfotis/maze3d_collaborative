@@ -42,7 +42,7 @@ class Maze3D:
         config = get_config(config_file)
         self.reward_type = config['SAC']['reward_function']
 
-    def step(self, action, timedout, action_duration=None):
+    def step(self, action, timedout, goal, action_duration=None):
         tmp_time = time.time()
         while (time.time() - tmp_time) < action_duration and not self.done:
             # print("Env got action: {}".format(action))
@@ -58,7 +58,7 @@ class Maze3D:
             fps = clock.get_fps()
             pg.display.set_caption("Running at " + str(int(fps)) + " fps")
             self.observation = self.get_state()
-            if checkTerminal(self.board.ball) or timedout:
+            if checkTerminal(self.board.ball, goal) or timedout:
                 self.done = True
         reward = self.reward_function_maze(timedout)
         return self.observation, reward, self.done

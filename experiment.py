@@ -54,7 +54,7 @@ class Experiment:
         self.test_max_episodes = self.config['Experiment']['test_loop']['max_games']
 
     # Experiment 1 loop
-    def loop_1(self):
+    def loop_1(self, goal):
         # Experiment 1 loop
         flag = True
         current_timestep = 0
@@ -93,7 +93,7 @@ class Experiment:
                     timedout = True
 
                 # Environment step
-                observation_, reward, done = self.env.step(action, timedout,
+                observation_, reward, done = self.env.step(action, timedout, goal,
                                                            self.config['Experiment']['loop_1']['action_duration'])
                 # add experience to buffer and train
                 self.save_experience_and_train(observation, reward, observation_, done)
@@ -151,7 +151,7 @@ class Experiment:
             self.avg_grad_updates_duration = mean(self.grad_updates_durations)
 
     # Experiment 2 loop
-    def loop_2(self):
+    def loop_2(self, goal):
         # Experiment 2 loop
         flag = True
         current_timestep = 0
@@ -190,7 +190,7 @@ class Experiment:
                 timedout = True
 
             # Environment step
-            observation_, reward, done = self.env.step(action, timedout,
+            observation_, reward, done = self.env.step(action, timedout, goal,
                                                        self.config['Experiment']['loop_2']['action_duration'])
             # add experience to buffer and train
             self.save_experience_and_train(observation, reward, observation_, done)
@@ -274,8 +274,9 @@ class Experiment:
         self.human_actions = convert_actions(actions)
         return duration_pause
 
-    def save_info(self, chkpt_dir, experiment_duration, total_games):
+    def save_info(self, chkpt_dir, experiment_duration, total_games, goal):
         info = {}
+        info['goal'] = goal
         info['experiment_duration'] = experiment_duration
         info['best_score'] = self.best_score
         info['best_score_episode'] = self.best_score_episode
@@ -388,7 +389,7 @@ class Experiment:
             self.agent_action = self.agent.choose_action(observation)
         return flag
 
-    def test_agent(self):
+    def test_agent(self, goal):
         # test loop
         current_timestep = 0
         self.test += 1
@@ -417,7 +418,7 @@ class Experiment:
                     timedout = True
 
                 # Environment step
-                observation_, reward, done = self.env.step(action, timedout,
+                observation_, reward, done = self.env.step(action, timedout, goal,
                                                            self.config['Experiment']['test_loop']['action_duration'])
 
                 observation = observation_

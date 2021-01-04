@@ -29,14 +29,17 @@ def main(argv):
     experiment = Experiment(config, maze, sac)
     start_experiment = time.time()
 
+    # set the goal
+    goal = config["game"]["goal"]
+
     # training loop
     loop = config['Experiment']['loop']
     if loop == 1:
         # Experiment 1
-        experiment.loop_1()
+        experiment.loop_1(goal)
     else:
         # Experiment 2
-        experiment.loop_2()
+        experiment.loop_2(goal)
 
     end_experiment = time.time()
     experiment_duration = timedelta(seconds=end_experiment - start_experiment - experiment.duration_pause_total)
@@ -51,7 +54,7 @@ def main(argv):
             total_games = experiment.max_episodes if loop == 1 else experiment.game
             # save rest of the experiment logs and plot them
             save_logs_and_plot(experiment, chkpt_dir, plot_dir, total_games)
-            experiment.save_info(chkpt_dir, experiment_duration, total_games)
+            experiment.save_info(chkpt_dir, experiment_duration, total_games, goal)
     pg.quit()
 
 
