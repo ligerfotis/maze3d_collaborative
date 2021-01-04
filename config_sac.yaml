@@ -18,10 +18,7 @@ SAC:
   alpha: 0.0003
   beta: 0.0003
   target_entropy_ratio: 0.4
-  reward_function: Sparse
-#  reward_function: Dense
-#  reward_function: Sparse_2
-
+  reward_function: Sparse # Sparse Sparse_2  Dense
 #  use_custom_reward: True
 
 Experiment:
@@ -58,4 +55,3 @@ Experiment:
     action_duration: 0.2 # sec
     max_score: 200
 
-# Comments: left_down

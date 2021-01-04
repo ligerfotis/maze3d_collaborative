@@ -1,0 +1,12 @@
+checkpoint_name: "tmp/sac_discrete_loop2_20201230_11-16-12-25-51"
+second_human: False # Instead of the RL play with a second human
+max_games: 0
+max_timesteps: 5
+action_duration: 0.2 # sec
+max_score: 200
+
+participant: "expert" # expert participant_1  participant_2  participant_3...
+
+Aid:
+  alone: False
+

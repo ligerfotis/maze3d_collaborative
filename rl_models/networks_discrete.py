@@ -76,8 +76,7 @@ class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, n_hidden_units, name='actor', chkpt_dir='tmp/sac'):
         super(Actor, self).__init__()
         self.checkpoint_dir = chkpt_dir
-        if chkpt_dir is not None:
-            self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
         self.name = name
         self.actor_mlp = nn.Sequential(
             nn.Linear(state_dim, n_hidden_units),

@@ -1,5 +1,6 @@
 import csv
 import math
+import random
 from statistics import mean
 import pandas as pd
 import time
@@ -10,13 +11,14 @@ from maze3D.config import pause
 import numpy as np
 from tqdm import tqdm
 from maze3D.utils import convert_actions
+from maze3D.config import left_down, right_down, left_up, center
 
 column_names = ["actions_x", "actions_y", "tray_rot_x", "tray_rot_y", "tray_rot_vel_x", "tray_rot_vel_y",
                 "ball_pos_x", "ball_pos_y", "ball_vel_x", "ball_vel_y"]
 
 
 class Experiment:
-    def __init__(self, config, environment, agent):
+    def __init__(self, config, environment, agent, load_models=False):
         self.test = 0
         self.config = config
         self.env = environment
@@ -37,7 +39,7 @@ class Experiment:
         self.discrete = config['SAC']['discrete']
         self.second_human = config['game']['second_human']
         self.duration_pause_total = 0
-        if self.config['game']['load_checkpoint']:
+        if load_models:
             self.agent.load_models()
         self.df = pd.DataFrame(columns=column_names)
         self.df_test = pd.DataFrame(columns=column_names)
@@ -468,6 +470,69 @@ class Experiment:
             return [-1, 1]
         else:
             print("Invalid agent action")
+
+    def test_loop(self):
+        # test loop
+        current_timestep = 0
+        self.test += 1
+        print('Test {}'.format(self.test))
+        goals = [left_down, right_down, left_up,]
+        for game in range(1, self.test_max_episodes + 1):
+            # randomly choose a goal
+            current_goal = random.choice(goals)
+
+            observation = self.env.reset()
+            timedout = False
+            episode_reward = 0
+            start = time.time()
+
+            actions = [0, 0, 0, 0]  # all keys not pressed
+            duration_pause = 0
+            self.save_models = False
+            for timestep in range(1, self.test_max_timesteps + 1):
+                self.total_steps += 1
+                current_timestep += 1
+
+                # compute agent's action
+                self.compute_agent_action(observation)
+                # compute keyboard action
+                duration_pause = self.getKeyboard(actions, duration_pause)
+                # get final action pair
+                action = self.get_action_pair()
+
+                if timestep == self.max_timesteps:
+                    timedout = True
+
+                # Environment step
+                observation_, reward, done = self.env.step(action, timedout, current_goal,
+                                                           self.config['Experiment']['test_loop']['action_duration'])
+
+                observation = observation_
+                new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                           "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
+                           "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
+                           "tray_rot_vel_y": observation[7]}
+                # append row to the dataframe
+                self.df_test = self.df_test.append(new_row, ignore_index=True)
+
+                episode_reward += reward
+
+                if done:
+                    break
+
+            end = time.time()
+
+            self.duration_pause_total += duration_pause
+            episode_duration = end - start - duration_pause
+
+            self.test_episode_duration_list.append(episode_duration)
+            self.test_score_history.append(self.config['Experiment']['test_loop']['max_score'] + episode_reward)
+            self.test_length_list.append(current_timestep)
+
+            # logging
+            # self.test_print_logs(game, episode_reward, current_timestep, episode_duration)
+
+            current_timestep = 0
 
 
 

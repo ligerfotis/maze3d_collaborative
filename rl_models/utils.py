@@ -35,6 +35,7 @@ def plot(data, figure_file, x=None, title=None):
 
 
 def get_plot_and_chkpt_dir(config):
+
     load_checkpoint, load_checkpoint_name, discrete = [config['game']['load_checkpoint'],
                                                        config['game']['checkpoint_name'], config['SAC']['discrete']]
     loop = str(config['Experiment']['loop'])
@@ -64,6 +65,23 @@ def get_plot_and_chkpt_dir(config):
         chkpt_dir = 'tmp/' + load_checkpoint_name
 
     return chkpt_dir, plot_dir, timestamp, load_checkpoint_name
+
+
+def get_test_plot_and_chkpt_dir(test_config):
+    # get the config from the train folder
+    config = None
+
+    load_checkpoint_name = test_config['checkpoint_name']
+
+    print("Loading Model from checkpoint {}".format(load_checkpoint_name))
+    participant = test_config['participant']
+    test_plot_dir = 'test/sac_discrete_' + participant + "/"
+    if not os.path.exists(test_plot_dir):
+        os.makedirs(test_plot_dir)
+
+    assert os.path.exists(load_checkpoint_name)
+
+    return test_plot_dir, load_checkpoint_name, config
 
 
 def get_config(config_file='config_sac.yaml'):
@@ -101,7 +119,7 @@ def reward_function(env, observation, timedout):
     return -1, False
 
 
-def get_sac_agent(config, env, chkpt_dir=None, load_checkpoint_name=None):
+def get_sac_agent(config, env, chkpt_dir=None):
     discrete = config['SAC']['discrete']
     if discrete:
         if config['Experiment']['loop'] == 1:
@@ -121,7 +139,7 @@ def get_sac_agent(config, env, chkpt_dir=None, load_checkpoint_name=None):
         sac = DiscreteSACAgent(config=config, env=env, input_dims=env.observation_shape,
                                n_actions=action_dim,
                                chkpt_dir=chkpt_dir, buffer_max_size=buffer_max_size, update_interval=update_interval,
-                               reward_scale=scale, load_checkpoint_name=load_checkpoint_name)
+                               reward_scale=scale)
     else:
         sac = Agent(config=config, env=env, input_dims=env.observation_shape, n_actions=env.action_space.shape,
                     chkpt_dir=chkpt_dir)
