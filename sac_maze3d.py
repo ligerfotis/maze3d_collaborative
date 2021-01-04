@@ -17,11 +17,13 @@ def main(argv):
     # creating environment
     maze = Maze3D(config_file=argv[0])
 
-    # create the checkpoint and plot directories for this experiment
-    chkpt_dir, plot_dir, timestamp = get_plot_and_chkpt_dir(config)
+    chkpt_dir, load_checkpoint_name = [None, None]
+    if config["game"]["save"]:
+        # create the checkpoint and plot directories for this experiment
+        chkpt_dir, plot_dir, timestamp, load_checkpoint_name = get_plot_and_chkpt_dir(config)
 
     # create the SAC agent
-    sac = get_sac_agent(config, maze, chkpt_dir)
+    sac = get_sac_agent(config, maze, chkpt_dir, load_checkpoint_name)
 
     # create the experiment
     experiment = Experiment(config, maze, sac)
@@ -41,14 +43,15 @@ def main(argv):
 
     print('Total Experiment time: {}'.format(experiment_duration))
 
-    # save training logs to a pickle file
-    experiment.df.to_pickle(plot_dir + '/training_logs.pkl')
+    if config["game"]["save"]:
+        # save training logs to a pickle file
+        experiment.df.to_pickle(plot_dir + '/training_logs.pkl')
 
-    if not config['game']['test_model']:
-        total_games = experiment.max_episodes if loop == 1 else experiment.game
-        # save rest of the experiment logs and plot them
-        save_logs_and_plot(experiment, chkpt_dir, plot_dir, total_games)
-        experiment.save_info(chkpt_dir, experiment_duration, total_games)
+        if not config['game']['test_model']:
+            total_games = experiment.max_episodes if loop == 1 else experiment.game
+            # save rest of the experiment logs and plot them
+            save_logs_and_plot(experiment, chkpt_dir, plot_dir, total_games)
+            experiment.save_info(chkpt_dir, experiment_duration, total_games)
     pg.quit()
 
 

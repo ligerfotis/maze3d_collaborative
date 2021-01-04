@@ -63,7 +63,7 @@ def get_plot_and_chkpt_dir(config):
         print("Loading Model from checkpoint {}".format(load_checkpoint_name))
         chkpt_dir = 'tmp/' + load_checkpoint_name
 
-    return chkpt_dir, plot_dir, timestamp
+    return chkpt_dir, plot_dir, timestamp, load_checkpoint_name
 
 
 def get_config(config_file='config_sac.yaml'):
@@ -101,7 +101,7 @@ def reward_function(env, observation, timedout):
     return -1, False
 
 
-def get_sac_agent(config, env, chkpt_dir):
+def get_sac_agent(config, env, chkpt_dir=None, load_checkpoint_name=None):
     discrete = config['SAC']['discrete']
     if discrete:
         if config['Experiment']['loop'] == 1:
@@ -113,10 +113,15 @@ def get_sac_agent(config, env, chkpt_dir):
             update_interval = config['Experiment']['loop_2']['learn_every_n_timesteps']
             scale = config['Experiment']['loop_2']['reward_scale']
 
+        if config['game']['agent_only']:
+            # up: 1, down:2, left:3, right:4, upleft:5, upright:6, downleft: 7, downright:8
+            action_dim = pow(2, env.action_space.actions_number)
+        else:
+            action_dim = env.action_space.actions_number
         sac = DiscreteSACAgent(config=config, env=env, input_dims=env.observation_shape,
-                               n_actions=env.action_space.actions_number,
+                               n_actions=action_dim,
                                chkpt_dir=chkpt_dir, buffer_max_size=buffer_max_size, update_interval=update_interval,
-                               reward_scale=scale)
+                               reward_scale=scale, load_checkpoint_name=load_checkpoint_name)
     else:
         sac = Agent(config=config, env=env, input_dims=env.observation_shape, n_actions=env.action_space.shape,
                     chkpt_dir=chkpt_dir)

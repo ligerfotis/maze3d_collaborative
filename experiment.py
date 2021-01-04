@@ -142,10 +142,11 @@ class Experiment:
                     self.grad_updates_durations.append(grad_updates_duration)
 
             # logging
-            if not self.config['game']['test_model']:
-                running_reward, avg_length = self.print_logs(i_episode, running_reward, avg_length, log_interval,
-                                                             avg_ep_duration)
-            current_timestep = 0
+            if self.config["game"]["verbose"]:
+                if not self.config['game']['test_model']:
+                    running_reward, avg_length = self.print_logs(i_episode, running_reward, avg_length, log_interval,
+                                                                 avg_ep_duration)
+                current_timestep = 0
         if not self.second_human:
             self.avg_grad_updates_duration = mean(self.grad_updates_durations)
 
@@ -237,9 +238,10 @@ class Experiment:
                 avg_length += current_timestep
 
                 # logging
-                if not self.config['game']['test_model']:
-                    running_reward, avg_length = self.print_logs(self.game, running_reward, avg_length, log_interval,
-                                                                 avg_ep_duration)
+                if self.config["game"]["save"]:
+                    if not self.config['game']['test_model']:
+                        running_reward, avg_length = self.print_logs(self.game, running_reward, avg_length, log_interval,
+                                                                     avg_ep_duration)
 
                 current_timestep = 0
                 observation = self.env.reset()
@@ -291,7 +293,10 @@ class Experiment:
         if self.second_human:
             action = self.human_actions
         else:
-            action = [self.agent_action, self.human_actions[1]]
+            if self.config['game']['agent_only']:
+                action = self.get_agent_only_action()
+            else:
+                action = [self.agent_action, self.human_actions[1]]
         self.action_history.append(action)
         return action
 
@@ -332,8 +337,9 @@ class Experiment:
                     self.agent.learn()
             end_grad_updates = time.time()
             # Testing
-            self.test_agent()
-            print("Continue Training.")
+            if self.test_max_episodes > 0:
+                self.test_agent()
+                print("Continue Training.")
 
         return end_grad_updates - start_grad_updates
 
@@ -363,7 +369,10 @@ class Experiment:
             if randomness_critirion is not None and randomness_threshold is not None \
                     and randomness_critirion < randomness_threshold:
                 # Pure exploration
-                self.agent_action = np.random.randint(self.env.action_space.actions_number)
+                if self.config['game']['agent_only']:
+                    self.agent_action = np.random.randint( pow(2, self.env.action_space.actions_number) )
+                else:
+                    self.agent_action = np.random.randint(self.env.action_space.actions_number)
                 self.save_models = False
                 if flag:
                     print("Using Random Agent")
@@ -437,3 +446,27 @@ class Experiment:
             # self.test_print_logs(game, episode_reward, current_timestep, episode_duration)
 
             current_timestep = 0
+
+    def get_agent_only_action(self):
+        # up: 0, down:1, left:2, right:3, upleft:4, upright:5, downleft: 6, downright:7
+        if self.agent_action == 0:
+            return [1, 0]
+        elif self.agent_action == 1:
+            return [-1, 0]
+        elif self.agent_action == 2:
+            return [0, -1]
+        elif self.agent_action == 3:
+            return [0, 1]
+        elif self.agent_action == 4:
+            return [1, -1]
+        elif self.agent_action == 5:
+            return [1, 1]
+        elif self.agent_action == 6:
+            return [-1, -1]
+        elif self.agent_action == 7:
+            return [-1, 1]
+        else:
+            print("Invalid agent action")
+
+
+

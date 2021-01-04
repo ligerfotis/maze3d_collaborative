@@ -76,7 +76,8 @@ class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, n_hidden_units, name='actor', chkpt_dir='tmp/sac'):
         super(Actor, self).__init__()
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
+        if chkpt_dir is not None:
+            self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
         self.name = name
         self.actor_mlp = nn.Sequential(
             nn.Linear(state_dim, n_hidden_units),
@@ -116,7 +117,8 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
+        if chkpt_dir is not None:
+            self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
         self.qnet1 = DuelQNet(state_dim, action_dim, n_hidden_units)
         self.qnet2 = DuelQNet(state_dim, action_dim, n_hidden_units)
 
@@ -137,7 +139,8 @@ class DuelQNet(nn.Module):
         super(DuelQNet, self).__init__()
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
+        if chkpt_dir is not None:
+            self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_sac')
         self.shared_mlp = nn.Sequential(
             nn.Linear(state_dim, n_hidden_units),
             nn.ReLU(),

@@ -1,19 +1,12 @@
+import random
 import time
 from maze3D.gameObjects import *
 from maze3D.assets import *
 from maze3D.utils import checkTerminal, get_distance_from_goal
 from rl_models.utils import get_config
+from maze3D.config import layout_up_right, layout_down_right, layout_up_left
 
-layout = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-          [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-          [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-          [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-          [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-          [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-          [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-          [1, 1, 0, 0, 0, 0, 0, 0, 2, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+layouts = [layout_down_right, layout_up_left, layout_up_right]
 
 
 class ActionSpace:
@@ -28,12 +21,15 @@ class ActionSpace:
 
     def sample(self):
         # return [random.sample([0, 1, 2], 1), random.sample([0, 1, 2], 1)]
-        return np.random.randint(self.low, self.high+1, 2)
+        return np.random.randint(self.low, self.high + 1, 2)
 
 
 class Maze3D:
     def __init__(self, config_file='config_sac.yaml'):
-        self.board = GameBoard(layout)
+        # choose randomly one starting point for the ball
+        current_layout = random.choice(layouts)
+        # current_layout = layout_up_right
+        self.board = GameBoard(current_layout)
         self.keys = {pg.K_UP: 1, pg.K_DOWN: 2, pg.K_LEFT: 4, pg.K_RIGHT: 8}
         self.keys_fotis = {pg.K_UP: 0, pg.K_DOWN: 1, pg.K_LEFT: 2, pg.K_RIGHT: 3}
         self.running = True
@@ -112,7 +108,7 @@ class Maze3D:
             return -50
         # return -target_distance/10 for each time step
         target_distance = get_distance_from_goal(self.board.ball)
-        return -target_distance/10
+        return -target_distance / 10
 
     def reward_function_sparse2(self, timedout):
         # For every timestep -1

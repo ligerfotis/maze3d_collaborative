@@ -10,7 +10,7 @@ class DiscreteSACAgent:
     def __init__(self, config=None, alpha=0.0003, beta=0.0003, input_dims=[8],
                  env=None, gamma=0.99, n_actions=2, buffer_max_size=1000000, tau=0.005,
                  update_interval=1, layer1_size=256, layer2_size=256, batch_size=256, reward_scale=2,
-                 chkpt_dir='tmp/sac', target_entropy_ratio=0.4):
+                 chkpt_dir=None, load_checkpoint_name=None, target_entropy_ratio=0.4):
         if config is not None:
             # SAC params
             self.batch_size = config['SAC']['batch_size']
@@ -38,6 +38,7 @@ class DiscreteSACAgent:
         self.input_dims = input_dims[0]
         self.n_actions = n_actions
         self.chkpt_dir = chkpt_dir
+        self.load_checkpoint_name = load_checkpoint_name
         self.target_entropy = target_entropy_ratio
 
         if config is not None and 'chkpt_dir' in config["Experiment"].values():
@@ -198,10 +199,11 @@ class DiscreteSACAgent:
         return entropy_loss
 
     def save_models(self):
-        print('.... saving models ....')
-        self.actor.save_checkpoint()
-        self.critic.save_checkpoint()
-        self.target_critic.save_checkpoint()
+        if self.chkpt_dir is not None:
+            print('.... saving models ....')
+            self.actor.save_checkpoint()
+            self.critic.save_checkpoint()
+            self.target_critic.save_checkpoint()
 
     def load_models(self):
         print('.... loading models ....')

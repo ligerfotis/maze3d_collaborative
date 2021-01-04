@@ -3,7 +3,9 @@ game:
     checkpoint_name: "sac_20201216_17-25-51"
     load_checkpoint: False
     second_human: False # Instead of the RL play with a second human
-
+    agent_only: False
+    verbose: True
+    save: True # save models and logs
 
 SAC:
   discrete: True
@@ -15,17 +17,17 @@ SAC:
   alpha: 0.0003
   beta: 0.0003
   target_entropy_ratio: 0.4
-#  reward_function: Sparse
+  reward_function: Sparse
 #  reward_function: Dense
-  reward_function: Sparse_2
+#  reward_function: Sparse_2
 
 #  use_custom_reward: True
 
 Experiment:
   loop: 1 # 1 or 2
   loop_1:
-    max_episodes: 4  # max training episodes
-    max_timesteps: 10  # max timesteps in one episode
+    max_episodes: 10  # max training episodes
+    max_timesteps: 100  # max timesteps in one episode
     buffer_memory_size: 1000000
     action_duration: 0.2 # sec
     start_training_step_on_episode: 2
@@ -50,7 +52,7 @@ Experiment:
     #chkpt_dir = "tmp/sac_fotis"
 
   test_loop:
-    max_games: 3
+    max_games: 0
     max_timesteps: 5
     action_duration: 0.2 # sec
     max_score: 200
