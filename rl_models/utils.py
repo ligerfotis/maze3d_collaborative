@@ -43,17 +43,21 @@ def get_plot_and_chkpt_dir(config):
     timestamp = str(now.strftime("%Y%m%d_%H-%M-%S"))
     plot_dir = None
     if not load_checkpoint:
-        if discrete:
-            chkpt_dir = 'tmp/sac_discrete_loop' + loop + "_" + timestamp
-            plot_dir = 'plots/sac_discrete_loop' + loop + "_" + timestamp
+        if 'chkpt_dir' in config["SAC"].keys():
+            chkpt_dir = 'tmp/' + config['SAC']['chkpt_dir']
+            plot_dir = 'plots/' + config['SAC']['chkpt_dir']
         else:
-            chkpt_dir = 'tmp/sac_loop' + loop + "_" + timestamp
-            plot_dir = 'plots/sac_loop' + loop + "_" + timestamp
-        # if not os.path.exists('tmp/sac'):
-        #     os.makedirs('tmp/sac')
-        #     chkpt_dir = 'tmp/sac'
-        # else:
-        #     os.makedirs(chkpt_dir)
+            if discrete:
+                chkpt_dir = 'tmp/sac_discrete_loop' + loop + "_" + timestamp
+                plot_dir = 'plots/sac_discrete_loop' + loop + "_" + timestamp
+            else:
+                chkpt_dir = 'tmp/sac_loop' + loop + "_" + timestamp
+                plot_dir = 'plots/sac_loop' + loop + "_" + timestamp
+            # if not os.path.exists('tmp/sac'):
+            #     os.makedirs('tmp/sac')
+            #     chkpt_dir = 'tmp/sac'
+            # else:
+            #     os.makedirs(chkpt_dir)
         if not os.path.exists(chkpt_dir):
             os.makedirs(chkpt_dir)
         if not os.path.exists(plot_dir):

@@ -23,7 +23,7 @@ def main(argv):
         chkpt_dir, plot_dir, timestamp, load_checkpoint_name = get_plot_and_chkpt_dir(config)
 
     # create the SAC agent
-    sac = get_sac_agent(config, maze, chkpt_dir, load_checkpoint_name)
+    sac = get_sac_agent(config, maze, chkpt_dir)
 
     # create the experiment
     experiment = Experiment(config, maze, sac)

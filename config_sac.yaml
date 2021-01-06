@@ -5,8 +5,8 @@ game:
     second_human: False # Instead of the RL play with a second human
     agent_only: False
     verbose: True
-    save: False # save models and logs
-    goal: "right_down" # "left_down" "left_up" "right_down"
+    save: True # save models and logs
+    goal: "left_down" # "left_down" "left_up" "right_down"
 
 SAC:
   discrete: True
@@ -19,10 +19,11 @@ SAC:
   beta: 0.0003
   target_entropy_ratio: 0.4
   reward_function: Sparse # Sparse Sparse_2  Dense
+  chkpt_dir: "loop2_test"
 #  use_custom_reward: True
 
 Experiment:
-  loop: 1 # 1 or 2
+  loop: 2 # 1 or 2
   loop_1:
     max_episodes: 10  # max training episodes
     max_timesteps: 100  # max timesteps in one episode
@@ -34,15 +35,14 @@ Experiment:
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward
     log_interval: 5  # print avg reward in the interval
-    #chkpt_dir = "tmp/sac_fotis"
 
   loop_2:
     total_timesteps: 3500  # total timesteps
-    max_timesteps_per_game: 200  # max timesteps per game
+    max_timesteps_per_game: 100  # max timesteps per game
     buffer_memory_size: 1000
     action_duration: 0.2 # sec
-    start_training_step_on_timestep: 500
-    learn_every_n_timesteps: 500
+    start_training_step_on_timestep: 200
+    learn_every_n_timesteps: 200
     update_cycles: 20000
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward

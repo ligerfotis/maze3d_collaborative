@@ -97,8 +97,8 @@ class Experiment:
                 # Environment step
                 observation_, reward, done = self.env.step(action, timedout, goal,
                                                            self.config['Experiment']['loop_1']['action_duration'])
-                # add experience to buffer and train
-                self.save_experience_and_train(observation, reward, observation_, done)
+                # add experience to buffer
+                self.save_experience(observation, reward, observation_, done)
 
                 observation = observation_
                 new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
@@ -194,8 +194,16 @@ class Experiment:
             # Environment step
             observation_, reward, done = self.env.step(action, timedout, goal,
                                                        self.config['Experiment']['loop_2']['action_duration'])
-            # add experience to buffer and train
-            self.save_experience_and_train(observation, reward, observation_, done)
+
+            interaction = [observation, self.agent_action, reward, observation_, done]
+            # add experience to buffer
+            self.save_experience(interaction)
+
+            # online train
+            if not self.config['game']['test_model']:
+                if self.discrete:
+                    self.agent.learn(interaction)
+                    self.agent.soft_update_target()
 
             new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
                        "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
@@ -303,21 +311,13 @@ class Experiment:
         self.action_history.append(action)
         return action
 
-    def save_experience_and_train(self, observation, reward, observation_, done):
+    def save_experience(self, interaction):
+        observation, agent_action, reward, observation_, done = interaction
         if not self.second_human:
             if self.discrete:
-                self.agent.memory.add(observation, self.agent_action, reward, observation_, done)
+                self.agent.memory.add(observation, agent_action, reward, observation_, done)
             else:
-                # observation_, reward, done = self.maze.step(action, timedout, self.config['Experiment']['loop_1']['action_duration'])
-                self.agent.remember(observation, self.agent_action, reward, observation_, done)
-
-            if not self.config['game']['test_model']:
-                if self.discrete:
-                    self.agent.learn()
-                    self.agent.soft_update_target()
-                else:
-                    self.agent.learn([observation, self.agent_action, reward, observation_, done])
-                    self.agent.learn([observation, self.agent_action, reward, observation_, done])
+                self.agent.remember(observation, agent_action, reward, observation_, done)
 
     def save_best_model(self, avg_score, game, current_timestep):
         if avg_score > self.best_score:

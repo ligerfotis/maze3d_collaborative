@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 from rl_models.networks_discrete import update_params, Actor, Critic, ReplayBuffer
 import torch.nn.functional as F
 
@@ -38,14 +38,15 @@ class DiscreteSACAgent:
         self.input_dims = input_dims[0]
         self.n_actions = n_actions
         self.chkpt_dir = chkpt_dir
-        self.target_entropy = target_entropy_ratio
+        self.target_entropy = target_entropy_ratio  # -np.prod(action_space.shape)
 
-        if config is not None and 'chkpt_dir' in config["Experiment"].values():
-            self.chkpt_dir = config['chkpt_dir']
+        # if config is not None and 'chkpt_dir' in config["SAC"].keys():
+        #     self.chkpt_dir = config['chkpt_dir']
 
         self.actor = Actor(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
         self.critic = Critic(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
-        self.target_critic = Critic(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(device)
+        self.target_critic = Critic(self.input_dims, self.n_actions, self.layer1_size, chkpt_dir=self.chkpt_dir).to(
+            device)
 
         self.target_critic.load_state_dict(self.critic.state_dict())
         # self.soft_update_target()
@@ -63,15 +64,19 @@ class DiscreteSACAgent:
         # self.target_entropy = -np.log(1.0 / action_dim) * self.target_entropy_ratio
         # self.target_entropy = np.log(action_dim) * self.target_entropy_ratio
 
-
         self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
         self.alpha_optim = torch.optim.Adam([self.log_alpha], lr=self.lr, eps=1e-4)
 
         self.memory = ReplayBuffer(self.buffer_max_size)
 
-    def learn(self):
-        states, actions, rewards, states_, dones = self.memory.sample(self.batch_size)
-        # states, actions, rewards, states_, dones = self.memory.sample(memory_batch_size)
+    def learn(self, interaction=None):
+        if interaction is None:
+            states, actions, rewards, states_, dones = self.memory.sample(self.batch_size)
+        else:
+            states, actions, rewards, states_, dones = interaction
+            states, actions, rewards, states_, dones = [np.asarray([states]), np.asarray([actions]),
+                                                        np.asarray([rewards]), np.asarray([states_]),
+                                                        np.asarray([dones])]
         states = torch.from_numpy(states).float().to(device)
         states_ = torch.from_numpy(states_).float().to(device)
         actions = torch.tensor(actions, dtype=torch.long).to(device).unsqueeze(1)  # dim [Batch,] -> [Batch, 1]
