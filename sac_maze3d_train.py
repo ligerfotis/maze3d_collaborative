@@ -9,6 +9,11 @@ from rl_models.utils import get_config, get_plot_and_chkpt_dir, get_sac_agent
 from maze3D.utils import save_logs_and_plot
 import sys
 
+"""
+The code of this work is based on the following github repos:
+https://github.com/kengz/SLM-Lab
+https://github.com/EveLIn3/Discrete_SAC_LunarLander/blob/master/sac_discrete.py
+"""
 
 def main(argv):
     # get configuration

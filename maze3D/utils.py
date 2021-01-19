@@ -2,9 +2,30 @@ import math
 import numpy as np
 
 from maze3D.config import left_down, right_down, left_up, center
-from rl_models.utils import plot_learning_curve, plot
+from rl_models.utils import plot_learning_curve, plot, plot_test_score
 
 goals = {"left_down": left_down, "left_up": left_up, "right_down": right_down}
+
+goal_offset = 22
+
+
+def checkTerminal_new(ball, goal):
+    goal = goals[goal]
+    if goal == right_down:
+        if ball.x > goal[0] and ball.y < goal[1]:
+            return True
+    elif goal == left_up:
+        if ball.x < goal[0] and ball.y > goal[1]:
+            return True
+    elif goal == left_down:
+        if (ball.x + 16 <= goal[0] + goal_offset) and (ball.x - 16 >= goal[0] - goal_offset) \
+                and (ball.y + 16 <= goal[1] + goal_offset) and (ball.y - 16 >= goal[1] - goal_offset):
+            return True
+    elif goal == center:
+        if ball.x < 0 and ball.y < 0:
+            return True
+    else:
+        return False
 
 
 def checkTerminal(ball, goal):
@@ -26,7 +47,8 @@ def checkTerminal(ball, goal):
         return False
 
 
-def get_distance_from_goal(ball):
+def get_distance_from_goal(ball, goal):
+    goal = goals[goal]
     return math.sqrt(math.pow(ball.x - goal[0], 2) + math.pow(ball.y - goal[1], 2))
 
 
@@ -78,10 +100,14 @@ def save_logs_and_plot(experiment, chkpt_dir, plot_dir, max_episodes):
 
     # plot test logs
     x = [i + 1 for i in range(len(experiment.test_length_list))]
-    plot(experiment.test_score_history, plot_dir + "/test_scores.png", x=x)
+    plot_test_score(experiment.test_score_history, plot_dir + "/test_scores.png")
     # plot_actions(x_actions, action_main, plot_dir + "/action_main.png")
     # plot_actions(x_actions, action_side, plot_dir + "/action_side.png")
     plot(experiment.test_length_list, plot_dir + "/test_length.png",
          x=x)
     plot(experiment.test_episode_duration_list, plot_dir + "/test_episode_duration.png",
          x=x)
+    try:
+        plot_test_score(experiment.score_history, plot_dir + "/test_scores_mean_std.png")
+    except:
+        print("An exception occurred while plotting")

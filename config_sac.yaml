@@ -10,48 +10,55 @@ game:
 
 SAC:
   discrete: True
-  layer1_size: 256  # number of variables in hidden layer
-  layer2_size: 256
+  layer1_size: 32  # number of variables in hidden layer
+  layer2_size: 32
   batch_size: 256
   gamma: 0.99  # discount factor
   tau: 0.005
   alpha: 0.0003
   beta: 0.0003
   target_entropy_ratio: 0.4
-  reward_function: Sparse # Sparse Sparse_2  Dense
-  chkpt_dir: "loop2_test"
+  reward_function: Sparse_2 # Sparse Sparse_2  Dense
+  chkpt_dir: "expert_alg1_offline_28K_every10_sparse2_descending_3"
 #  use_custom_reward: True
 
 Experiment:
-  loop: 2 # 1 or 2
+  online_updates: False
+  test_interval: 10
+  scheduling: descending # descending normal big_first
+#  offline_updates: True
+  loop: 1 # 1 or 2
+
   loop_1:
-    max_episodes: 10  # max training episodes
-    max_timesteps: 100  # max timesteps in one episode
+    max_episodes: 70  # max training episodes
+    max_timesteps: 200  # max timesteps in one episode
     buffer_memory_size: 1000000
     action_duration: 0.2 # sec
-    start_training_step_on_episode: 5
-    learn_every_n_episodes: 5
-    update_cycles: 20000
+    start_training_step_on_episode: 10
+    stop_random_agent: 10
+    learn_every_n_episodes: 10
+    total_update_cycles: 28000
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward
-    log_interval: 5  # print avg reward in the interval
+    log_interval: 10  # print avg reward in the interval
 
   loop_2:
     total_timesteps: 3500  # total timesteps
-    max_timesteps_per_game: 100  # max timesteps per game
+    max_timesteps_per_game: 200  # max timesteps per game
     buffer_memory_size: 1000
     action_duration: 0.2 # sec
-    start_training_step_on_timestep: 200
-    learn_every_n_timesteps: 200
+    start_training_step_on_timestep: 500
+    learn_every_n_timesteps: 500
+    test_loop:
     update_cycles: 20000
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward
-    log_interval: 4  # games
+    log_interval: 2  # games
     #chkpt_dir = "tmp/sac_fotis"
 
   test_loop:
-    max_games: 0
-    max_timesteps: 5
+    max_games: 10
+    max_timesteps: 200
     action_duration: 0.2 # sec
     max_score: 200
 

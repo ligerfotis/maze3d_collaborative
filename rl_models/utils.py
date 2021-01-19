@@ -1,5 +1,8 @@
 import os
 from datetime import datetime
+from statistics import mean, stdev
+import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 from pip._vendor.distlib._backport import shutil
@@ -34,8 +37,27 @@ def plot(data, figure_file, x=None, title=None):
     plt.savefig(figure_file)
 
 
-def get_plot_and_chkpt_dir(config):
+def plot_test_score(data, figure_file, title=None):
+    fig, ax = plt.subplots()
+    clrs = sns.color_palette("husl", 5)
+    means, stds, x_axis = [], [], []
+    for i in range(0, len(data), 10):
+        means.append(mean(data[i:i + 10]))
+        stds.append(stdev(data[i:i + 10]))
+        x_axis.append(i+10)
+    means, stds, x_axis = np.asarray(means), np.asarray(stds), np.asarray(x_axis)
+    with sns.axes_style("darkgrid"):
+        # meanst = np.array(means.ix[i].values[3:-1], dtype=np.float64)
+        # sdt = np.array(stds.ix[i].values[3:-1], dtype=np.float64)
+        ax.plot(x_axis, means, c=clrs[0])
+        ax.fill_between(x_axis, means - stds, means + stds, facecolor='blue', alpha=0.5)
+    if title:
+        plt.title(title)
+    plt.savefig(figure_file)
+    # plt.show()
 
+
+def get_plot_and_chkpt_dir(config):
     load_checkpoint, load_checkpoint_name, discrete = [config['game']['load_checkpoint'],
                                                        config['game']['checkpoint_name'], config['SAC']['discrete']]
     loop = str(config['Experiment']['loop'])
@@ -148,3 +170,8 @@ def get_sac_agent(config, env, chkpt_dir=None):
         sac = Agent(config=config, env=env, input_dims=env.observation_shape, n_actions=env.action_space.shape,
                     chkpt_dir=chkpt_dir)
     return sac
+
+
+# data = [i for i in range(100)]
+# plot_test_score(data, "figure_title", "title")
+# exit(0)

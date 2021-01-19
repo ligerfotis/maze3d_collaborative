@@ -27,6 +27,6 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
 * Use left and right arrows to control the tilt of the tray around its vertical(y) axis
 
 
-
+![Game](game.png)
 
 
