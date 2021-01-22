@@ -21,7 +21,13 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
 * Adjust the hyperparameters in the `config_sac.yaml` or the `config_human.yaml` file
     * Note 1: Only discrete SAC is compatible with the game so far
     * Note 2: There are already configuration files set up based on the PETRA 21 short paper in the `config/` directory
+  
 
+* Control
+    * Use left and right arrows to control the tilt of the tray around its vertical(y) axis
+    * Press once the spacekey to pause and a second time to resume
+    * Press q to exit the experiment.
+  
 
 * Get Familiar with the game
   * Run the command bellow to play 10 trials with the game controlling both DOF (up, down , left, right) with the keyboard's arrows.
@@ -39,14 +45,7 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
      
   * With a **Second human**:
         
-        python sac_maze3d_train.py config/config_human.yaml
-  
-  
-* Control
-    * Use left and right arrows to control the tilt of the tray around its vertical(y) axis
-    * Press once the spacekey to pause and a second time to resume
-    * Press q to exit the experiment.
-  
+        python sac_maze3d_train.py config/config_human.yaml  
 
 
 #### Game Overview
