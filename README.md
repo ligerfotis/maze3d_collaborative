@@ -1,4 +1,7 @@
 # Maze 3D Collaborative Learning on shared task
+___
+Contact: ligerfotis@gmail.com
+___
 
 Maze 3D game from: https://github.com/amengede/Marble-Maze
 
@@ -14,15 +17,22 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
         source venv/bin/activate
         pip install -r requirements.txt
     
+
 * Adjust the hyperparameters in the `config_sac.yaml` or the `config_human.yaml` file
-    * Note 1: Discrete SAC is only compatible with the game so far
-    * Note 2: There are already configuration files set up based on the PETRA 21 short paper in the `config` directory
-* Play
+    * Note 1: Only discrete SAC is compatible with the game so far
+    * Note 2: There are already configuration files set up based on the PETRA 21 short paper in the `config/` directory
+
+
+* Get Familiar with the game
   * Run the command bellow to play 10 trials with the game controlling both DOF (up, down , left, right) with the keyboard's arrows.
   
           python maze3d_human_only_test.py config/config_human_test.yaml
 
+
 * Train
+  *  Notes before training: 
+     * substitute the `participant_name` in each config file with your own
+     * the program will automatically create an identification number after your name on each folder name created
   *  With the **RL agent**:
         
           python sac_maze3d_train.py config/config_sac_<experiment_specifications>.yaml
@@ -31,11 +41,15 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
         
         python sac_maze3d_train.py config/config_human.yaml
   
+  
 * Control
     * Use left and right arrows to control the tilt of the tray around its vertical(y) axis
     * Press once the spacekey to pause and a second time to resume
     * Press q to exit the experiment.
+  
 
+
+#### Game Overview
 ![Game](game.png)
 
 
