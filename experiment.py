@@ -18,7 +18,7 @@ column_names = ["actions_x", "actions_y", "tray_rot_x", "tray_rot_y", "tray_rot_
 
 
 class Experiment:
-    def __init__(self, config, environment, agent, load_models=False):
+    def __init__(self, environment, agent=None, load_models=False, config=None):
         self.counter = 0
         self.test = 0
         self.config = config
@@ -37,8 +37,8 @@ class Experiment:
         self.test_length_list = []
         self.test_score_history = []
         self.test_episode_duration_list = []
-        self.discrete = config['SAC']['discrete']
-        self.second_human = config['game']['second_human']
+        self.discrete = config['SAC']['discrete'] if 'SAC' in config.keys() else None
+        self.second_human = config['game']['second_human'] if 'game' in config.keys() else None
         self.duration_pause_total = 0
         if load_models:
             self.agent.load_models()
@@ -53,8 +53,8 @@ class Experiment:
         self.max_timesteps_per_game = None
         self.save_models = True
         self.game = None
-        self.test_max_timesteps = self.config['Experiment']['test_loop']['max_timesteps']
-        self.test_max_episodes = self.config['Experiment']['test_loop']['max_games']
+        self.test_max_timesteps = self.config['Experiment']['test_loop']['max_timesteps'] if 'test_loop' in config['Experiment'].keys() else None
+        self.test_max_episodes = self.config['Experiment']['test_loop']['max_games'] if 'test_loop' in config['Experiment'].keys() else None
         self.update_cycles = None
 
         # Experiment 1 loop
@@ -94,7 +94,7 @@ class Experiment:
                     randomness_critirion = i_episode
                     flag = self.compute_agent_action(observation, randomness_critirion, randomness_threshold, flag)
                 # compute keyboard action
-                duration_pause = self.getKeyboard(actions, duration_pause)
+                duration_pause, _ = self.getKeyboard(actions, duration_pause)
                 # get final action pair
                 action = self.get_action_pair()
                 if timestep == self.max_timesteps:
@@ -113,7 +113,8 @@ class Experiment:
 
                 # online train
                 if not self.config['game']['test_model'] and not self.second_human:
-                    if self.config['Experiment']['online_updates'] and i_episode >= self.config['Experiment']['loop_1']['start_training_step_on_episode']:
+                    if self.config['Experiment']['online_updates'] and i_episode >= self.config['Experiment']['loop_1'][
+                        'start_training_step_on_episode']:
                         if self.discrete:
                             self.agent.learn()
                             self.agent.soft_update_target()
@@ -218,7 +219,7 @@ class Experiment:
                 randomness_critirion = timestep
                 flag = self.compute_agent_action(observation, randomness_critirion, randomness_threshold, flag)
             # compute keyboard action
-            duration_pause = self.getKeyboard(actions, duration_pause)
+            duration_pause, _ = self.getKeyboard(actions, duration_pause)
             # get final action pair
             action = self.get_action_pair()
 
@@ -306,6 +307,22 @@ class Experiment:
         if not self.second_human:
             self.avg_grad_updates_duration = mean(self.grad_updates_durations)
 
+    def test_human(self, goal):
+
+        self.max_episodes = self.config['Experiment']['loop_1']['max_episodes']
+        self.max_timesteps = self.config['Experiment']['loop_1']['max_timesteps']
+        for i_episode in range(1, self.max_episodes + 1):
+            self.env.reset()
+            actions = [0, 0, 0, 0]  # all keys not pressed
+            for step in range(self.max_timesteps):
+                duration_pause, actions = self.getKeyboard(actions, 0)
+                action = convert_actions(actions)
+                # Environment step
+                observation_, reward, done = self.env.step(action, False, goal,
+                                                           self.config['Experiment']['loop_1']['action_duration'])
+                if done:
+                    break
+
     def getKeyboard(self, actions, duration_pause):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -317,6 +334,8 @@ class Experiment:
                     pause()
                     end_pause = time.time()
                     duration_pause += end_pause - start_pause
+                if event.key == pg.K_q:
+                    exit(1)
                 if event.key in self.env.keys:
                     actions[self.env.keys_fotis[event.key]] = 1
                     # action_human += maze.keys[event.key]
@@ -325,7 +344,7 @@ class Experiment:
                     actions[self.env.keys_fotis[event.key]] = 0
                     # action_human -= maze.keys[event.key]
         self.human_actions = convert_actions(actions)
-        return duration_pause
+        return duration_pause, actions
 
     def save_info(self, chkpt_dir, experiment_duration, total_games, goal):
         info = {}
@@ -451,7 +470,7 @@ class Experiment:
                 randomness_threshold = self.config['Experiment']['loop_2']['start_training_step_on_timestep']
                 self.compute_agent_action(observation, randomness_critirion, randomness_threshold)
                 # compute keyboard action
-                duration_pause = self.getKeyboard(actions, duration_pause)
+                duration_pause, _ = self.getKeyboard(actions, duration_pause)
                 # get final action pair
                 action = self.get_action_pair()
 
@@ -538,7 +557,7 @@ class Experiment:
                 # compute agent's action
                 self.compute_agent_action(observation)
                 # compute keyboard action
-                duration_pause = self.getKeyboard(actions, duration_pause)
+                duration_pause, _ = self.getKeyboard(actions, duration_pause)
                 # get final action pair
                 action = self.get_action_pair()
 
@@ -581,7 +600,8 @@ class Experiment:
         total_update_cycles = self.config['Experiment']['loop_1']['total_update_cycles']
         online_updates = 0
         if self.config['Experiment']['online_updates']:
-            online_updates = self.max_timesteps * (self.max_episodes - self.config['Experiment']['loop_1']['start_training_step_on_episode'])
+            online_updates = self.max_timesteps * (
+                    self.max_episodes - self.config['Experiment']['loop_1']['start_training_step_on_episode'])
 
         if self.update_cycles is None:
             self.update_cycles = total_update_cycles - online_updates

@@ -1,0 +1,14 @@
+participant_name: "fotis"
+
+game:
+    second_human: False # Instead of the RL play with a second human
+    # position of the goal on the board
+    goal: "left_down" # "left_down" "left_up" "right_down"
+
+Experiment:
+  loop: 1 # Test loop
+
+  loop_1:
+    max_episodes: 10  # max training episodes
+    max_timesteps: 200  # max timesteps in one episode
+    action_duration: 0.2 # sec

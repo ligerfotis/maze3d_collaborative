@@ -1,3 +1,5 @@
+participant_name: "fotis"
+
 game:
     test_model: False # no training
     checkpoint_name: "sac_20201216_17-25-51"
@@ -6,6 +8,8 @@ game:
     agent_only: False
     verbose: True
     save: True # save models and logs
+
+    # position of the goal on the board
     goal: "left_down" # "left_down" "left_up" "right_down"
 
 SAC:
@@ -18,15 +22,26 @@ SAC:
   alpha: 0.0003
   beta: 0.0003
   target_entropy_ratio: 0.4
-  reward_function: Sparse_2 # Sparse Sparse_2  Dense
-  chkpt_dir: "expert_alg1_offline_28K_every10_sparse2_descending_3"
-#  use_custom_reward: True
+
+  # Sparse:   +100: goal, -50: time out, -1/step
+  # Sparse_2: +10: goal, -1/step
+  # Dense:    +10: goal, -[(distance from goal)/(regularize factor)]
+  reward_function: Sparse_2
+#  chkpt_dir: "expert_alg1_online_156K_every10_sparse2_descending"
 
 Experiment:
-  online_updates: False
+  online_updates: True
   test_interval: 10
+
+  # offline gradient updates allocation
+  # Normal: allocates evenly the total number of updates through each session
+  # descending: allocation of total updates using geometric progression with ratio 1/2
   scheduling: descending # descending normal big_first
-#  offline_updates: True
+
+  ################################################################################################
+  # Loop 1: Trial-based Loop "Accelerating Human-Agent Collaborative Reinforcement Learning "
+  # Loop 2: Step-based Loop "Real-World Human-Robot Collaborative Reinforcement Learning"
+  ################################################################################################
   loop: 1 # 1 or 2
 
   loop_1:
@@ -34,10 +49,10 @@ Experiment:
     max_timesteps: 200  # max timesteps in one episode
     buffer_memory_size: 1000000
     action_duration: 0.2 # sec
-    start_training_step_on_episode: 10
-    stop_random_agent: 10
-    learn_every_n_episodes: 10
-    total_update_cycles: 28000
+    start_training_step_on_episode: 10 # will not train the agent before this trial
+    stop_random_agent: 10 # stops using random agent on this trial and start using SAC
+    learn_every_n_episodes: 10 # intervals to performoffline gradient updates
+    total_update_cycles: 28000 # total number of offline gradient updates throughout the whole experiment
     reward_scale: 2
     # solved_reward = 230  # stop training if avg_reward > solved_reward
     log_interval: 10  # print avg reward in the interval
@@ -57,8 +72,8 @@ Experiment:
     #chkpt_dir = "tmp/sac_fotis"
 
   test_loop:
-    max_games: 10
-    max_timesteps: 200
+    max_games: 10 # total test trials during each test session
+    max_timesteps: 200 # max steps per trial
     action_duration: 0.2 # sec
     max_score: 200
 

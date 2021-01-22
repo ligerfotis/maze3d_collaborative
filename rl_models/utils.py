@@ -44,7 +44,7 @@ def plot_test_score(data, figure_file, title=None):
     for i in range(0, len(data), 10):
         means.append(mean(data[i:i + 10]))
         stds.append(stdev(data[i:i + 10]))
-        x_axis.append(i+10)
+        x_axis.append(i + 10)
     means, stds, x_axis = np.asarray(means), np.asarray(stds), np.asarray(x_axis)
     with sns.axes_style("darkgrid"):
         # meanst = np.array(means.ix[i].values[3:-1], dtype=np.float64)
@@ -61,36 +61,45 @@ def get_plot_and_chkpt_dir(config):
     load_checkpoint, load_checkpoint_name, discrete = [config['game']['load_checkpoint'],
                                                        config['game']['checkpoint_name'], config['SAC']['discrete']]
     loop = str(config['Experiment']['loop'])
-    now = datetime.now()
-    timestamp = str(now.strftime("%Y%m%d_%H-%M-%S"))
+    total_number_updates = config['Experiment']['loop_' + loop]['total_update_cycles']
+    participant = config['participant_name']
+    learn_every = config['Experiment']['loop_' + loop]['learn_every_n_episodes']
+    reward_function = config['SAC']['reward_function']
+    allocation = config['Experiment']['scheduling']
+
+    alg = 'O_O_a' if config['Experiment']['online_updates'] else 'O_a'
+
     plot_dir = None
     if not load_checkpoint:
         if 'chkpt_dir' in config["SAC"].keys():
             chkpt_dir = 'tmp/' + config['SAC']['chkpt_dir']
             plot_dir = 'plots/' + config['SAC']['chkpt_dir']
         else:
-            if discrete:
-                chkpt_dir = 'tmp/sac_discrete_loop' + loop + "_" + timestamp
-                plot_dir = 'plots/sac_discrete_loop' + loop + "_" + timestamp
-            else:
-                chkpt_dir = 'tmp/sac_loop' + loop + "_" + timestamp
-                plot_dir = 'plots/sac_loop' + loop + "_" + timestamp
-            # if not os.path.exists('tmp/sac'):
-            #     os.makedirs('tmp/sac')
-            #     chkpt_dir = 'tmp/sac'
-            # else:
-            #     os.makedirs(chkpt_dir)
-        if not os.path.exists(chkpt_dir):
-            os.makedirs(chkpt_dir)
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
+            chkpt_dir = 'tmp/' + 'loop' + loop + '_' + alg + '_' + str(int(
+                total_number_updates / 1000)) + 'K_every' + str(learn_every) + '_' \
+                        + reward_function + '_' + allocation + '_' + participant
 
-        shutil.copy('config_sac.yaml', chkpt_dir)
+            plot_dir = 'plots/' + 'loop' + loop + '_' + alg + '_' + str(int(
+                total_number_updates / 1000)) + 'K_every' + str(learn_every) + '_' \
+                        + reward_function + '_' + allocation + '_' + participant
+        i = 1
+        while os.path.exists(chkpt_dir + '_' + str(i)):
+            i += 1
+        os.makedirs(chkpt_dir + '_' + str(i))
+        chkpt_dir = chkpt_dir + '_' + str(i)
+
+        j = 1
+        while os.path.exists(plot_dir + '_' + str(j)):
+            j += 1
+        os.makedirs(plot_dir + '_' + str(j))
+        plot_dir = plot_dir + '_' + str(j)
+
+        shutil.copy('config/config_sac.yaml', chkpt_dir)
     else:
         print("Loading Model from checkpoint {}".format(load_checkpoint_name))
-        chkpt_dir = 'tmp/' + load_checkpoint_name
+        chkpt_dir = load_checkpoint_name
 
-    return chkpt_dir, plot_dir, timestamp, load_checkpoint_name
+    return chkpt_dir, plot_dir, load_checkpoint_name
 
 
 def get_test_plot_and_chkpt_dir(test_config):
@@ -170,7 +179,6 @@ def get_sac_agent(config, env, chkpt_dir=None):
         sac = Agent(config=config, env=env, input_dims=env.observation_shape, n_actions=env.action_space.shape,
                     chkpt_dir=chkpt_dir)
     return sac
-
 
 # data = [i for i in range(100)]
 # plot_test_score(data, "figure_title", "title")

@@ -25,7 +25,7 @@ class ActionSpace:
 
 
 class Maze3D:
-    def __init__(self, config_file='config_sac.yaml'):
+    def __init__(self, config=None,  config_file=None):
         # choose randomly one starting point for the ball
         current_layout = random.choice(layouts)
         # current_layout = layout_up_right
@@ -39,8 +39,8 @@ class Maze3D:
         self.observation_shape = (len(self.observation),)
         self.dt = None
         self.fps = 60
-        config = get_config(config_file)
-        self.reward_type = config['SAC']['reward_function']
+        self.config = get_config(config_file) if config_file is not None else config
+        self.reward_type = self.config['SAC']['reward_function'] if 'SAC' in self.config.keys() else None
 
     def step(self, action, timedout, goal, action_duration=None):
         tmp_time = time.time()
@@ -70,7 +70,7 @@ class Maze3D:
              self.board.rot_x, self.board.rot_y, self.board.velocity[0], self.board.velocity[1]])
 
     def reset(self):
-        self.__init__()
+        self.__init__(config=self.config)
         return self.observation
 
     def reward_function_maze(self, timedout, goal=None):
@@ -80,8 +80,6 @@ class Maze3D:
             return self.reward_function_dense(timedout, goal)
         elif self.reward_type == "Sparse_2" or self.reward_type == "sparse_2":
             return self.reward_function_sparse2(timedout)
-        else:
-            print("Use a valid reward type")
 
     def reward_function_sparse(self, timedout):
         # For every timestep -1

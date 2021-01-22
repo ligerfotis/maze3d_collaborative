@@ -1,0 +1,75 @@
+game:
+    test_model: False # no training
+    checkpoint_name: "sac_20201216_17-25-51"
+    load_checkpoint: False
+    second_human: False # Instead of the RL play with a second human
+    agent_only: False
+    verbose: True
+    save: True # save models and logs
+    goal: "left_down" # "left_down" "left_up" "right_down"
+
+SAC:
+  discrete: True
+  layer1_size: 32  # number of variables in hidden layer
+  layer2_size: 32
+  batch_size: 256
+  gamma: 0.99  # discount factor
+  tau: 0.005
+  alpha: 0.0003
+  beta: 0.0003
+  target_entropy_ratio: 0.4
+
+  # Sparse:   +100: goal, -50: time out, -1/step
+  # Sparse_2: +10: goal, -1/step
+  # Dense:    +10: goal, -[(distance from goal)/(regularize factor)]
+  reward_function: Sparse_2
+  chkpt_dir: "expert_alg1_offline_28K_every10_sparse2_descending_3"
+
+Experiment:
+  online_updates: False
+  test_interval: 10
+
+  # offline gradient updates allocation
+  # Normal: allocates evenly the total number of updates through each session
+  # descending: allocation of total updates using geometric progression with ratio 1/2
+  scheduling: descending # descending normal big_first
+
+  ################################################################################################
+  # Loop 1: Trial-based Loop "Accelerating Human-Agent Collaborative Reinforcement Learning "
+  # Loop 2: Step-based Loop "Real-World Human-Robot Collaborative Reinforcement Learning"
+  ################################################################################################
+  loop: 1 # 1 or 2
+
+  loop_1:
+    max_episodes: 70  # max training episodes
+    max_timesteps: 200  # max timesteps in one episode
+    buffer_memory_size: 1000000
+    action_duration: 0.2 # sec
+    start_training_step_on_episode: 10 # will not train the agent before this trial
+    stop_random_agent: 10 # stops using random agent on this trial and start using SAC
+    learn_every_n_episodes: 10 # intervals to performoffline gradient updates
+    total_update_cycles: 28000 # total number of offline gradient updates throughout the whole experiment
+    reward_scale: 2
+    # solved_reward = 230  # stop training if avg_reward > solved_reward
+    log_interval: 10  # print avg reward in the interval
+
+  loop_2:
+    total_timesteps: 3500  # total timesteps
+    max_timesteps_per_game: 200  # max timesteps per game
+    buffer_memory_size: 1000
+    action_duration: 0.2 # sec
+    start_training_step_on_timestep: 500
+    learn_every_n_timesteps: 500
+    test_loop:
+    update_cycles: 20000
+    reward_scale: 2
+    # solved_reward = 230  # stop training if avg_reward > solved_reward
+    log_interval: 2  # games
+    #chkpt_dir = "tmp/sac_fotis"
+
+  test_loop:
+    max_games: 10 # total test trials during each test session
+    max_timesteps: 200 # max steps per trial
+    action_duration: 0.2 # sec
+    max_score: 200
+
