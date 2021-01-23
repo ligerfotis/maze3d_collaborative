@@ -88,7 +88,6 @@ class GameBoard:
             self.rot_x = -self.max_x_rotation
             self.velocity[0] = 0
 
-
         self.velocity[1] = 0.01 * angleIncrement[1]
         self.rot_y += self.velocity[1]
         if self.rot_y >= self.max_y_rotation:

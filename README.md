@@ -49,6 +49,32 @@ Reinforcement Learning (RL) Agent: Soft Actor Critic (SAC)
 
 
 #### Game Overview
-![Game](game.png)
+![Game](pictures/game.png)
+
+##### Game Specifications
+* Board
+    * Square with side size: 320 pixels
+    * Board Area: 102400 pixels
+    * Free Board Area (excluding walls): 58368 pixels
+  
+* Wall Cubes
+  * Cubes with edge size: 32 pixels
+  * Cube bottom Area: 1024 pixels
+
+* Ball
+  * sphere with radius ρ<sub>2</sub>: 16 pixels
+  * ball Area: 805 pixels
+  
+* Goal
+  * Circle with center c<sub>1</sub>:(-104, -104) and radius ρ<sub>1</sub>: 22 pixels
+  * goal Area: 1521 pixels
+  
+* Ratios
+  * Goal - Free Board: ~ 2.6%
+  * Ball - Goal:  ~ 53%
+  
+* Goal reached if ball's whole projection area on the board falls in the goal's area
+    ![Game](pictures/circle.png)
+
 
 
