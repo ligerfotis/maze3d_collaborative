@@ -57,15 +57,16 @@ def convert_actions(actions):
     if actions[0] == 1:
         action.append(1)
     elif actions[1] == 1:
-        action.append(2)
+        action.append(-1)
     else:
         action.append(0)
     if actions[2] == 1:
         action.append(1)
     elif actions[3] == 1:
-        action.append(2)
+        action.append(-1)
     else:
         action.append(0)
+
     return action
 
 
@@ -84,6 +85,16 @@ def save_logs_and_plot(experiment, chkpt_dir, plot_dir, max_episodes):
     np.savetxt(chkpt_dir + '/avg_length_list.csv', np.asarray(experiment.length_list), delimiter=',')
     np.savetxt(chkpt_dir + '/grad_updates_durations.csv', experiment.grad_updates_durations, delimiter=',')
 
+    # np.savetxt(chkpt_dir + '/epidode_durations.csv', np.asarray(experiment.game_duration_list), delimiter=',')
+
+    np.savetxt(chkpt_dir + '/game_step_durations.csv', np.asarray(experiment.step_duration_list), delimiter=',')
+    np.savetxt(chkpt_dir + '/online_update_durations.csv', np.asarray(experiment.online_update_duration_list),
+               delimiter=',')
+    np.savetxt(chkpt_dir + '/total_fps.csv', np.asarray(experiment.env.fps_list), delimiter=',')
+    np.savetxt(chkpt_dir + '/train_fps.csv', np.asarray(experiment.train_fps_list), delimiter=',')
+    np.savetxt(chkpt_dir + '/test_fps.csv', np.asarray(experiment.test_fps_list), delimiter=',')
+
+
     # test logs
     np.savetxt(chkpt_dir + '/test_episode_duration_list.csv', experiment.test_episode_duration_list, delimiter=',')
     np.savetxt(chkpt_dir + '/test_score_history.csv', experiment.test_score_history, delimiter=',')
@@ -97,6 +108,20 @@ def save_logs_and_plot(experiment, chkpt_dir, plot_dir, max_episodes):
          x=[i + 1 for i in range(max_episodes)])
     plot(experiment.grad_updates_durations, plot_dir + "/grad_updates_durations.png",
          x=[i + 1 for i in range(len(experiment.grad_updates_durations))])
+
+    plot(experiment.step_duration_list, plot_dir + "/game_step_durations.png",
+         x=[i + 1 for i in range(len(experiment.step_duration_list))])
+    plot(experiment.test_step_duration_list, plot_dir + "/test_game_step_durations.png",
+         x=[i + 1 for i in range(len(experiment.test_step_duration_list))])
+
+    plot(experiment.online_update_duration_list, plot_dir + "/online_updates_durations.png",
+         x=[i + 1 for i in range(len(experiment.online_update_duration_list))])
+    plot(experiment.env.fps_list, plot_dir + "/total_fps.png",
+         x=[i + 1 for i in range(len(experiment.env.fps_list))])
+    plot(experiment.train_fps_list, plot_dir + "/train_fps.png",
+         x=[i + 1 for i in range(len(experiment.train_fps_list))])
+    plot(experiment.test_fps_list, plot_dir + "/test_fps.png",
+         x=[i + 1 for i in range(len(experiment.test_fps_list))])
 
     # plot test logs
     x = [i + 1 for i in range(len(experiment.test_length_list))]

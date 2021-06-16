@@ -2,7 +2,7 @@ import random
 import time
 from maze3D.gameObjects import *
 from maze3D.assets import *
-from maze3D.utils import checkTerminal, get_distance_from_goal, checkTerminal_new
+from maze3D.utils import checkTerminal, get_distance_from_goal, checkTerminal_new, convert_actions
 from rl_models.utils import get_config
 from maze3D.config import layout_up_right, layout_down_right, layout_up_left
 
@@ -25,7 +25,8 @@ class ActionSpace:
 
 
 class Maze3D:
-    def __init__(self, config=None,  config_file=None):
+    def __init__(self, config=None, config_file=None):
+        self.fps_list = []
         # choose randomly one starting point for the ball
         current_layout = random.choice(layouts)
         # current_layout = layout_up_right
@@ -41,12 +42,20 @@ class Maze3D:
         self.fps = 60
         self.config = get_config(config_file) if config_file is not None else config
         self.reward_type = self.config['SAC']['reward_function'] if 'SAC' in self.config.keys() else None
+        self.discrete = self.config['SAC']['discrete']
 
-    def step(self, action, timedout, goal, action_duration=None):
+    def step(self, action_agent, timedout, goal, action_duration, duration_pause):
         tmp_time = time.time()
+        actions = [0, 0, 0, 0]
+        action_list = []
         while (time.time() - tmp_time) < action_duration and not self.done:
             # print("Env got action: {}".format(action))
             # self.board.handleKeys(action)  # action is int
+            # compute keyboard action
+            duration_pause, _ = self.getKeyboard(actions, duration_pause)
+            action = [action_agent, self.human_actions[1]]
+            action_list.append(action)
+
             self.board.handleKeys_fotis(action)
             self.board.update()
             glClearDepth(1000.0)
@@ -56,12 +65,38 @@ class Maze3D:
 
             self.dt = clock.tick(self.fps)
             fps = clock.get_fps()
+            self.fps_list.append(fps)
+
             pg.display.set_caption("Running at " + str(int(fps)) + " fps")
             self.observation = self.get_state()
             if checkTerminal_new(self.board.ball, goal) or timedout:
                 self.done = True
         reward = self.reward_function_maze(timedout, goal)
-        return self.observation, reward, self.done
+        return self.observation, reward, self.done, fps, duration_pause, action_list
+
+    def getKeyboard(self, actions, duration_pause):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return 1
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    # print("space")
+                    start_pause = time.time()
+                    pause()
+                    end_pause = time.time()
+                    duration_pause += end_pause - start_pause
+                if event.key == pg.K_q:
+                    exit(1)
+                if event.key in self.keys:
+                    actions[self.keys_fotis[event.key]] = 1
+                    # action_human += maze.keys[event.key]
+            if event.type == pg.KEYUP:
+                if event.key in self.keys:
+                    actions[self.keys_fotis[event.key]] = 0
+                    # action_human -= maze.keys[event.key]
+        self.human_actions = convert_actions(actions)
+        return duration_pause, actions
+
 
     def get_state(self):
         # [ball pos x | ball pos y | ball vel x | ball vel y|  theta(x) | phi(y) |  theta_dot(x) | phi_dot(y) | ]

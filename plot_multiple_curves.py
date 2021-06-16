@@ -13,59 +13,52 @@ file_name_4 = 'tmp/expert_alg1_offline_154K_every10_sparse2_1/test_score_history
 file_name_5 = 'tmp/expert_alg1_offline_154K_every10_sparse2_2/test_score_history.csv'
 file_name_6 = 'tmp/expert_alg1_offline_154K_every10_sparse2_3/test_score_history.csv'
 
-# file_name_1 = 'tmp/expert_alg1_online_28K_every5_sparse2_scheduling_1/test_score_history.csv'
-# file_name_2 = 'tmp/expert_alg1_online_28K_every5_sparse2_scheduling_2/test_score_history.csv'
-# file_name_3 = 'tmp/expert_alg1_online_28K_every5_sparse2_scheduling_3/test_score_history.csv'
-#
-# file_name_4 = 'tmp/expert_alg1_offline_28K_every5_sparse2_scheduling_1/test_score_history.csv'
-# file_name_5 = 'tmp/expert_alg1_offline_28K_every5_sparse2_scheduling_2/test_score_history.csv'
-# file_name_6 = 'tmp/expert_alg1_offline_28K_every5_sparse2_scheduling_3/test_score_history.csv'
+file_name_7 = 'tmp/expert_alg1_online_28K_every10_sparse2_1/test_score_history.csv'
+file_name_8 = 'tmp/expert_alg1_online_28K_every10_sparse2_2/test_score_history.csv'
+file_name_9 = 'tmp/expert_alg1_online_28K_every10_sparse2_3/test_score_history.csv'
 
-# file_name_7 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_1/test_score_history.csv'
-# file_name_8 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_2/test_score_history.csv'
-# file_name_9 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_3/test_score_history.csv'
-#
-# file_name_10 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_1/test_score_history.csv'
-# file_name_11 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_2/test_score_history.csv'
-# file_name_12 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_3/test_score_history.csv'
+file_name_10 = 'tmp/expert_alg1_offline_28K_every10_sparse2_1/test_score_history.csv'
+file_name_11 = 'tmp/expert_alg1_offline_28K_every10_sparse2_2/test_score_history.csv'
+file_name_12 = 'tmp/expert_alg1_offline_28K_every10_sparse2_3/test_score_history.csv'
 
-# file_name_7 = 'tmp/expert_alg1_online_28K_every10_sparse2_1/test_score_history.csv'
-# file_name_8 = 'tmp/expert_alg1_online_28K_every10_sparse2_2/test_score_history.csv'
-# file_name_9 = 'tmp/expert_alg1_online_28K_every10_sparse2_3/test_score_history.csv'
-#
-# file_name_10 = 'tmp/expert_alg1_offline_28K_every10_sparse2_1/test_score_history.csv'
-# file_name_11 = 'tmp/expert_alg1_offline_28K_every10_sparse2_2/test_score_history.csv'
-# file_name_12 = 'tmp/expert_alg1_offline_28K_every10_sparse2_3/test_score_history.csv'
+file_name_13 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_1/test_score_history.csv'
+file_name_14 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_2/test_score_history.csv'
+file_name_15 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_3/test_score_history.csv'
 
-file_name_7 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_1/test_score_history.csv'
-file_name_8 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_2/test_score_history.csv'
-file_name_9 = 'tmp/expert_alg1_online_28K_every10_sparse2_descending_3/test_score_history.csv'
+file_name_16 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_1/test_score_history.csv'
+file_name_17 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_2/test_score_history.csv'
+file_name_18 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_3/test_score_history.csv'
 
-file_name_10 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_1/test_score_history.csv'
-file_name_11 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_2/test_score_history.csv'
-file_name_12 = 'tmp/expert_alg1_offline_28K_every10_sparse2_descending_3/test_score_history.csv'
-#
-# file_name_7 = 'tmp/expert_alg1_online_154K_every10_sparse2_1/test_score_history.csv'
-# file_name_8 = 'tmp/expert_alg1_online_154K_every10_sparse2_2/test_score_history.csv'
-# file_name_9 = 'tmp/expert_alg1_online_154K_every10_sparse2_3/test_score_history.csv'
-#
-# file_name_10 = 'tmp/expert_alg1_offline_154K_every10_sparse2_1/test_score_history.csv'
-# file_name_11 = 'tmp/expert_alg1_offline_154K_every10_sparse2_2/test_score_history.csv'
-# file_name_12 = 'tmp/expert_alg1_offline_154K_every10_sparse2_3/test_score_history.csv'
+file_name_1t = 'tmp/thanasis/loop1_O_O_a_154K_every10_Sparse_2_normal_thanasis_1/test_score_history.csv'
+file_name_2t = 'tmp/thanasis/loop1_O_O_a_154K_every10_Sparse_2_normal_thanasis_2/test_score_history.csv'
+file_name_3t = 'tmp/thanasis/loop1_O_O_a_154K_every10_Sparse_2_normal_thanasis_3/test_score_history.csv'
 
-# file_name_7 = 'tmp/expert_alg1_online_28K_every5_sparse2_1/test_score_history.csv'
-# file_name_8 = 'tmp/expert_alg1_online_28K_every5_sparse2_2/test_score_history.csv'
-# file_name_9 = 'tmp/expert_alg1_online_28K_every5_sparse2_3/test_score_history.csv'
-#
-# file_name_10 = 'tmp/expert_alg1_offline_28K_every5_sparse2_1/test_score_history.csv'
-# file_name_11 = 'tmp/expert_alg1_offline_28K_every5_sparse2_2/test_score_history.csv'
-# file_name_12 = 'tmp/expert_alg1_offline_28K_every5_sparse2_3/test_score_history.csv'
+file_name_4t = 'tmp/thanasis/loop1_O_a_154K_every10_Sparse_2_normal_thanasis_1/test_score_history.csv'
+file_name_5t = 'tmp/thanasis/loop1_O_a_154K_every10_Sparse_2_normal_thanasis_2/test_score_history.csv'
+file_name_6t = 'tmp/thanasis/loop1_O_a_154K_every10_Sparse_2_normal_thanasis_3/test_score_history.csv'
+
+file_name_7t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_normal_thanasis_1/test_score_history.csv'
+file_name_8t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_normal_thanasis_2/test_score_history.csv'
+file_name_9t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_normal_thanasis_3/test_score_history.csv'
+
+file_name_10t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_normal_thanasis_1/test_score_history.csv'
+file_name_11t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_normal_thanasis_2/test_score_history.csv'
+file_name_12t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_normal_thanasis_3/test_score_history.csv'
+
+file_name_13t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_descending_thanasis_1/test_score_history.csv'
+file_name_14t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_descending_thanasis_2/test_score_history.csv'
+file_name_15t = 'tmp/thanasis/loop1_O_O_a_28K_every10_Sparse_2_descending_thanasis_3/test_score_history.csv'
+
+file_name_16t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_descending_thanasis_1/test_score_history.csv'
+file_name_17t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_descending_thanasis_2/test_score_history.csv'
+file_name_18t = 'tmp/thanasis/loop1_O_a_28K_every10_Sparse_2_descending_thanasis_3/test_score_history.csv'
 
 # random_files = [random_file_1]
 # legend_names_1 = ["offline_2000_sparse1", "offline_2000_sparse2"]
 # legend_names_2 = ["offline_154_every10_sparse1"]
 # legend_names = ["offline_28K_every5_sparse2", "online_28K_every5_sparse2", "offline_154K_every10_sparse2", "online_154K_every10_sparse2"]
 legend_names = ["O-O-a 154K", "O-a 154K", "O-O-a 28K Descending", "O-a 28K Descending"]
+legend_names = ["O-O-a 154K", "O-a 154K", "O-O-a 28K", "O-a 28K"]
 
 # filename_list_1 = [file_name_1, file_name_2]
 # filename_list_2 = [file_name_3, file_name_4]
@@ -116,10 +109,12 @@ def plot(filename_list, legend_names, figure_file=None):
         # plt.show()
 
 
-plot([[file_name_1, file_name_2,file_name_3], [file_name_4, file_name_5,file_name_6],
-      [file_name_7, file_name_8, file_name_9], [file_name_10, file_name_11, file_name_12]],
+plot([[file_name_1, file_name_2, file_name_3, file_name_1t, file_name_2t, file_name_3t],
+      [file_name_4, file_name_5, file_name_6, file_name_4t, file_name_5t, file_name_6t],
+      [file_name_7, file_name_8, file_name_9, file_name_7t, file_name_8t, file_name_9t],
+      [file_name_10, file_name_11, file_name_12, file_name_10t, file_name_11t, file_name_12t]],
     legend_names,
-     figure_file=dir + "154K vs 28K Descending")
+     figure_file=dir + "154K vs 28K 2 users.png")
 
 # plot([filename_list_sparse1[0]], [legend_names_sparse1[0]], figure_file=dir +"offline_sparse_1")
 # plot([filename_list_sparse1[1]], [legend_names_sparse1[1]], figure_file=dir +"online_sparse_1")

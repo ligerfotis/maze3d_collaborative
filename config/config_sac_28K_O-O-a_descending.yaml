@@ -45,7 +45,7 @@ Experiment:
   loop: 1 # 1 or 2
 
   loop_1:
-    max_episodes: 70  # max training episodes
+    max_episodes: 16  # max training episodes
     max_timesteps: 200  # max timesteps in one episode
     buffer_memory_size: 1000000
     action_duration: 0.2 # sec

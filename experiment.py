@@ -12,13 +12,20 @@ import numpy as np
 from tqdm import tqdm
 from maze3D.utils import convert_actions
 from maze3D.config import left_down, right_down, left_up, center
+from pympler.tracker import SummaryTracker
 
 column_names = ["actions_x", "actions_y", "tray_rot_x", "tray_rot_y", "tray_rot_vel_x", "tray_rot_vel_y",
                 "ball_pos_x", "ball_pos_y", "ball_vel_x", "ball_vel_y"]
-
+stdev = .1
+tracker = SummaryTracker()
 
 class Experiment:
     def __init__(self, environment, agent=None, load_models=False, config=None):
+        self.train_fps_list = []
+        self.test_fps_list = []
+        self.test_step_duration_list = []
+        self.online_update_duration_list = []
+        self.step_duration_list = []
         self.counter = 0
         self.test = 0
         self.config = config
@@ -72,7 +79,7 @@ class Experiment:
         self.max_timesteps = self.config['Experiment']['loop_1']['max_timesteps']
 
         # self.test_agent(goal, 1)
-        # print("Continue Training.")
+        print("Continue Training.")
 
         for i_episode in range(1, self.max_episodes + 1):
             observation = self.env.reset()
@@ -85,6 +92,7 @@ class Experiment:
             duration_pause = 0
             self.save_models = True
             for timestep in range(1, self.max_timesteps + 1):
+                test_game_start_time = time.time()
                 self.total_steps += 1
                 current_timestep += 1
 
@@ -94,15 +102,21 @@ class Experiment:
                     randomness_critirion = i_episode
                     flag = self.compute_agent_action(observation, randomness_critirion, randomness_threshold, flag)
                 # compute keyboard action
-                duration_pause, _ = self.getKeyboard(actions, duration_pause)
+                # duration_pause, _ = self.getKeyboard(actions, duration_pause)
                 # get final action pair
-                action = self.get_action_pair()
+                # action = self.get_action_pair()
+                tmp_agent_action = self.agent_action
+                if self.config["SAC"]["discrete"]:
+                    tmp_agent_action = -1 if self.agent_action == abs(2) else self.agent_action
+
                 if timestep == self.max_timesteps:
                     timedout = True
 
                 # Environment step
-                observation_, reward, done = self.env.step(action, timedout, goal,
-                                                           self.config['Experiment']['loop_1']['action_duration'])
+                observation_, reward, done, train_fps, duration_pause, action_list = self.env.step(tmp_agent_action, timedout, goal,
+                                                           self.config['Experiment']['loop_1']['action_duration'], duration_pause)
+                self.train_fps_list.append(train_fps)
+                self.action_history = self.action_history + action_list
                 # add experience to buffer
                 interaction = [observation, self.agent_action, reward, observation_, done]
                 self.save_experience(interaction)
@@ -112,15 +126,21 @@ class Experiment:
                 test_offline_score += -1 if not done else 0
 
                 # online train
+                start_online_update = time.time()
                 if not self.config['game']['test_model'] and not self.second_human:
                     if self.config['Experiment']['online_updates'] and i_episode >= self.config['Experiment']['loop_1'][
                         'start_training_step_on_episode']:
                         if self.discrete:
                             self.agent.learn()
                             self.agent.soft_update_target()
+                self.online_update_duration_list.append(time.time() - start_online_update)
 
                 observation = observation_
-                new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                # new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                #            "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
+                #            "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
+                #            "tray_rot_vel_y": observation[7]}
+                new_row = {"ball_pos_x": observation[0],
                            "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
                            "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
                            "tray_rot_vel_y": observation[7]}
@@ -128,7 +148,8 @@ class Experiment:
                 self.df = self.df.append(new_row, ignore_index=True)
                 # if total_steps >= start_training_step and total_steps % sac.target_update_interval == 0:
                 #     sac.soft_update_target()
-
+                test_step_duration = time.time() - test_game_start_time
+                self.test_step_duration_list.append(test_step_duration)
                 if done:
                     break
 
@@ -186,6 +207,7 @@ class Experiment:
                 self.avg_grad_updates_duration = mean(self.grad_updates_durations)
             except:
                 print("Exception when calc grad_updates_durations")
+        tracker.print_diff()
 
     # Experiment 2 loop
     def loop_2(self, goal):
@@ -316,35 +338,12 @@ class Experiment:
             actions = [0, 0, 0, 0]  # all keys not pressed
             for step in range(self.max_timesteps):
                 duration_pause, actions = self.getKeyboard(actions, 0)
-                action = convert_actions(actions)
+                action = self.human_actions
                 # Environment step
                 observation_, reward, done = self.env.step(action, False, goal,
                                                            self.config['Experiment']['loop_1']['action_duration'])
                 if done:
                     break
-
-    def getKeyboard(self, actions, duration_pause):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                return 1
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    # print("space")
-                    start_pause = time.time()
-                    pause()
-                    end_pause = time.time()
-                    duration_pause += end_pause - start_pause
-                if event.key == pg.K_q:
-                    exit(1)
-                if event.key in self.env.keys:
-                    actions[self.env.keys_fotis[event.key]] = 1
-                    # action_human += maze.keys[event.key]
-            if event.type == pg.KEYUP:
-                if event.key in self.env.keys:
-                    actions[self.env.keys_fotis[event.key]] = 0
-                    # action_human -= maze.keys[event.key]
-        self.human_actions = convert_actions(actions)
-        return duration_pause, actions
 
     def save_info(self, chkpt_dir, experiment_duration, total_games, goal):
         info = {}
@@ -369,9 +368,40 @@ class Experiment:
             if self.config['game']['agent_only']:
                 action = self.get_agent_only_action()
             else:
-                action = [self.agent_action, self.human_actions[1]]
-        self.action_history.append(action)
+                tmp_agent_action = self.agent_action
+                if self.config["SAC"]["discrete"]:
+                    tmp_agent_action = -1 if self.agent_action == abs(2) else self.agent_action
+                action = [tmp_agent_action, self.human_actions[1]]
+        # self.action_history.append(action)
         return action
+
+    def getKeyboard(self, actions, duration_pause):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return 1
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    # print("space")
+                    start_pause = time.time()
+                    pause()
+                    end_pause = time.time()
+                    duration_pause += end_pause - start_pause
+                if event.key == pg.K_q:
+                    exit(1)
+                if event.key in self.env.keys:
+                    actions[self.env.keys_fotis[event.key]] = 1
+                    # action_human += maze.keys[event.key]
+            if event.type == pg.KEYUP:
+                if event.key in self.env.keys:
+                    actions[self.env.keys_fotis[event.key]] = 0
+                    # action_human -= maze.keys[event.key]
+        self.human_actions = convert_actions(actions)
+
+        if not self.config["SAC"]["discrete"]:
+            # hit keyboard input with noise to make continuous
+            # we use action as the mean of a normal distribution with variance 2
+            self.human_actions = [random.gauss(self.human_actions[0], stdev), random.gauss(self.human_actions[1], stdev)]
+        return duration_pause, actions
 
     def save_experience(self, interaction):
         observation, agent_action, reward, observation_, done = interaction
@@ -434,7 +464,10 @@ class Experiment:
                 if self.config['game']['agent_only']:
                     self.agent_action = np.random.randint(pow(2, self.env.action_space.actions_number))
                 else:
-                    self.agent_action = np.random.randint(self.env.action_space.actions_number)
+                    if self.discrete:
+                        self.agent_action = np.random.randint(self.env.action_space.actions_number)
+                    else:
+                        self.agent_action = np.random.uniform(-1,1)
                 self.save_models = False
                 if flag:
                     print("Using Random Agent")
@@ -456,6 +489,7 @@ class Experiment:
         self.test += 1
         print('Test {}'.format(self.test))
         best_score = 0
+        flag = True
         for game in range(1, self.test_max_episodes + 1):
             observation = self.env.reset()
             timedout = False
@@ -468,21 +502,30 @@ class Experiment:
                 current_timestep += 1
                 # compute agent's action
                 randomness_threshold = self.config['Experiment']['loop_2']['start_training_step_on_timestep']
-                self.compute_agent_action(observation, randomness_critirion, randomness_threshold)
+                flag = self.compute_agent_action(observation, randomness_critirion, randomness_threshold, flag=flag)
                 # compute keyboard action
-                duration_pause, _ = self.getKeyboard(actions, duration_pause)
+                # duration_pause, _ = self.getKeyboard(actions, duration_pause)
                 # get final action pair
-                action = self.get_action_pair()
+                # action = self.get_action_pair()
+                tmp_agent_action = self.agent_action
+                if self.config["SAC"]["discrete"]:
+                    tmp_agent_action = -1 if self.agent_action == abs(2) else self.agent_action
 
                 if timestep == self.test_max_timesteps:
                     timedout = True
 
                 # Environment step
-                observation_, _, done = self.env.step(action, timedout, goal,
-                                                      self.config['Experiment']['test_loop']['action_duration'])
+                observation_, _, done, test_fps, duration_pause, action_list = self.env.step(tmp_agent_action, timedout, goal,
+                                                      self.config['Experiment']['test_loop']['action_duration'], duration_pause)
+                self.test_fps_list.append(test_fps)
+                self.action_history = self.action_history + action_list
 
                 observation = observation_
-                new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                # new_row = {'actions_x': action[0], 'actions_y': action[1], "ball_pos_x": observation[0],
+                #            "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
+                #            "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
+                #            "tray_rot_vel_y": observation[7]}
+                new_row = {"ball_pos_x": observation[0],
                            "ball_pos_y": observation[1], "ball_vel_x": observation[2], "ball_vel_y": observation[3],
                            "tray_rot_x": observation[4], "tray_rot_y": observation[5], "tray_rot_vel_x": observation[6],
                            "tray_rot_vel_y": observation[7]}
